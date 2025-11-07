@@ -2,16 +2,23 @@
     "name": "syntra",
     "version": "1.0.0",
     "description": "Refine your rhythm",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "electron ."
+        "start": "electron .",
+        "build": "tsc",
+        "dev": "concurrently \"tsc --watch\" \"electron .\""
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@types/electron": "^1.4.38",
+        "@types/node": "^24.10.0",
+        "concurrently": "^9.2.1",
         "electron": "^39.1.1",
-        "electron-reload": "^2.0.0-alpha.1"
+        "electron-reload": "^2.0.0-alpha.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
     }
 }

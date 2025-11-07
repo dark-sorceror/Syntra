@@ -1,14 +1,12 @@
-const { app, BrowserWindow } = require("electron");
-const path = require("path");
-
-require("electron-reload")(__dirname);
+import { app, BrowserWindow } from "electron";
+import * as path from "path";
 
 function createWindow() {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, "preload.js"),
+            preload: path.join(__dirname, "../preload/preload.js"), // compiled JS
         },
     });
 
