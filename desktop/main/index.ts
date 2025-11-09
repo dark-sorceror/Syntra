@@ -15,10 +15,11 @@ const createWindow = () => {
     });
 
     const isDev = !app.isPackaged;
-    if (isDev) mainWindow.loadURL("http://localhost:5173");
-    else
+    if (isDev) {
+        mainWindow.loadURL("http://localhost:3000");
+    } else 
         mainWindow.loadFile(
-            path.join(__dirname, "../frontend/dist/index.html")
+            path.join(__dirname, "client/index.html")
         );
 
     mainWindow.on("closed", () => (mainWindow = null));

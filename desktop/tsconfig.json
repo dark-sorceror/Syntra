@@ -9,5 +9,6 @@
         "sourceMap": true,
         "skipLibCheck": true
     },
-    "include": ["index.ts"]
+    "include": ["main/**/*.ts"],
+    "exclude": ["dist"]
 }
