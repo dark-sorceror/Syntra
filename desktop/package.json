@@ -5,12 +5,9 @@
     "main": "dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "electron .",
-        "build": "tsc",
-        "dev": "nodemon --watch . --ext ts,tsx,json,html,css --exec \"npm run build && electron ./dist/index.js --inspect\"",
-        "dev:frontend": "cd frontend && npm run dev",
-        "dev:electron": "wait-on tcp:3000 && electron .",
-        "dist": "npx electron-builder"
+        "start": "npx electron .",
+        "build": "tsc && npx electron-builder",
+        "dev": "nodemon --watch main --ext ts,tsx,json,html,css --exec \"tsc && electron ./dist/index.js --inspect\""
     },
     "keywords": [],
     "author": "",
@@ -19,7 +16,6 @@
         "@types/electron": "^1.4.38",
         "@types/node": "^24.10.0",
         "electron": "39.1.1",
-        "electron-builder": "^26.0.12",
         "nodemon": "^3.1.10",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3"
