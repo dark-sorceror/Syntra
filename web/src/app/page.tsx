@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 export default function Home() {
-    const [ response, setResponse ] = useState<string>("");
-    const [ loading, setLoading ] = useState(false);
+    const [response, setResponse] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
     const testBackend = async () => {
         setLoading(true);
@@ -29,7 +29,7 @@ export default function Home() {
                 method: "POST",
             });
             const data = await res.json();
-            
+
             setResponse(
                 `AI Suggestion: ${data.suggestion} (Confidence: ${data.confidence})`
             );

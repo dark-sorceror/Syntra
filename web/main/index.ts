@@ -9,15 +9,16 @@ const DEV_SERVER = `http://localhost:${DEV_PORT}`;
 
 const devMode = !app.isPackaged;
 
-let mainWindow: BrowserWindow | null = null;
+let win: BrowserWindow | null = null;
 let pyProc: ChildProcessWithoutNullStreams | null = null;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    win = new BrowserWindow({
         width: 1200,
         height: 800,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
+            scrollBounce: true,
         },
     });
 
@@ -31,8 +32,8 @@ function createWindow() {
 
     expressApp.listen(DEV_PORT, () => {
         console.log(`Using static files from ${outPath}`);
-        
-        mainWindow?.loadURL(`${DEV_SERVER}/`);
+
+        win?.loadURL(`${DEV_SERVER}/`);
     });
 }
 

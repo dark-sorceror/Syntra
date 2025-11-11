@@ -10,6 +10,5 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true
     },
-    "include": ["main/**/*"],
-    "exclude": ["!main/**/*"]
+    "include": ["main/**/*"]
 }
