@@ -1,0 +1,28 @@
+appId: com.syntra.app
+productName: Syntra
+
+directories:
+    output: app
+    buildResources: assets
+
+files:
+    - "dist/**/*"
+    - "main/**/*"
+    - "index.js"
+    - "package.json"
+    - "node_modules/**/*"
+
+extraResources:
+    - from: "out"
+      to: "app/out"
+    - from: "../server/dist/app/"
+      to: "server/"
+
+asar: false
+
+win:
+    target: nsis
+
+nsis:
+    oneClick: false
+    allowToChangeInstallationDirectory: true
