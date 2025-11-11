@@ -1,0 +1,10 @@
+**/node_modules
+**/src/.next
+**/build
+**/main
+**/app
+**/.gitignore
+**/dist
+Dockerfile
+**/*.env
+**/*.md
