@@ -1,2 +1,2 @@
 # Syntra
-Refine your rhythm
+Redefine your rhythm
