@@ -1,10 +1,10 @@
 import uvicorn
-from datetime import datetime, timedelta, time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from pydantic import BaseModel
+from models import EventModel
+from pattern_recognition import extract_patterns
 
 app = FastAPI()
 
@@ -20,19 +20,15 @@ app.add_middleware(
 BASE_URL = "http://localhost:8000"
 
 db = {
-    "events": []
+    "events": [],
+    "models": {}
 }
-
-class Event(BaseModel):
-    user_id: str
-    event_title: str
-    start: datetime
-    end: datetime
-    category: str
 
 @app.get("/api/test")
 def test_button():
-    return {"response": "Backend is working"}
+    return {
+        "response": "Backend is working"
+    }
 
 @app.post("/api/ai-suggest")
 def ai_suggest():
@@ -42,10 +38,13 @@ def ai_suggest():
     }
     
 @app.post("/events")
-def add_event(event: Event):
+def add_event(event: EventModel):
     db["events"].append(event.model_dump())
     
-    return {"status": "ok", "count": len(db["events"])}
+    return {
+        "status": "ok", 
+        "count": len(db["events"])
+    }
 
 @app.get("/events")
 def get_events():
@@ -53,6 +52,33 @@ def get_events():
         "events": db["events"], 
         "count": len(db["events"])
     }
+    
+@app.get('/extract/{user_id}')
+def extract(user_id: str):
+    response = extract_patterns(user_id, db)
+    
+    if not response:
+        return {
+            "message": "Model pattern analyzed",
+            "user_id": user_id,
+            "habits": db["models"].get(
+                user_id, 
+                {
+                    "message": "Error occured"
+                }
+            )
+        }
+        
+    return response
+    
+@app.get("/db")
+def database():
+    return db
 
 if __name__ == "__main__":
-    uvicorn.run("__main__:app", host="127.0.0.1", port=8000)
+    uvicorn.run(
+        "__main__:app", 
+        host = "127.0.0.1", 
+        port = 8000, 
+        reload = True
+    )

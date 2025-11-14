@@ -7,23 +7,23 @@ BASE_URL = "http://localhost:8000"
 
 patterns = [
     {
-        "eventTitle": "Gym",
+        "event_title": "Gym",
         "category": "Health",
-        "startTime": 7,
+        "start_time": 7,
         "duration": 1,
         "days": [0, 2, 4]
     },
     {
-        "eventTitle": "Work", 
+        "event_title": "Work", 
         "category": "Job", 
-        "startTime": 9,
+        "start_time": 9,
         "duration": 6,
         "days": [0, 1, 2, 3, 4]
     },
     {
-        "eventTitle": "Study", 
+        "event_title": "Study", 
         "category": "Learning", 
-        "startTime": 20,
+        "start_time": 20,
         "duration": 6,
         "days": [1, 3, 5]
     }
@@ -38,13 +38,13 @@ for i in range(30):
     
     for j in patterns:
         if weekday in j["days"]:
-            start = datetime.combine(day, time(j["startTime"], 0))
+            start = datetime.combine(day, time(j["start_time"], 0))
             end = start + timedelta(minutes = j["duration"])
             
             events.append(
                 {
-                    "userID": user_id,
-                    "eventTitle": j["eventTitle"],
+                    "user_id": user_id,
+                    "event_title": j["event_title"],
                     "start": start.isoformat(),
                     "end": end.isoformat(),
                     "category": j["category"]
