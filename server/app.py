@@ -3,8 +3,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import EventModel
-from pattern_recognition import extract_patterns
+from src.models import EventModel
+from src.pattern_recognition import extract_patterns
 
 app = FastAPI()
 
