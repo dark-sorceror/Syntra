@@ -42,7 +42,6 @@ def extract_patterns(user_id: str, db: dict):
         avg_duration = sum(stats.durations) / len(stats.durations)
 
         day_counts = Counter(stats.days)
-        print(title, day_counts)
         usual_days = [i for i, f in day_counts.items() if f > 1]
 
         if len(stats.start_times) > 1: std_dev = statistics.stdev(stats.start_times)

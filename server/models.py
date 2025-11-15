@@ -16,6 +16,7 @@ class HabitModel(BaseModel):
     durations: list[int]
     
 class HabitPatternModel(BaseModel):
+    event_title: str
     frequency: int
     average_start_time: float
     average_duration_hours: float
