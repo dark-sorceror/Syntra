@@ -1,9 +1,6 @@
 import random
 import json
 
-import numpy as np
-import pandas as pd
-
 from pathlib import Path
 
 from datetime import datetime, timedelta, time
@@ -14,8 +11,7 @@ OUTPUT = Path("./server/data/seed") # ./server/data/raw in the future
 OUTPUT.mkdir(exist_ok = True)
 
 NUM_USERS = 1000
-DAYS_PER_USER = 1
-SEQ_LEN = 5
+DAYS_PER_USER = 5
 
 PATTERNS = [
     HabitPatternModel (
@@ -23,7 +19,7 @@ PATTERNS = [
         frequency = 3,
         average_start_time = 16.0,
         average_duration_hours = 5.0,
-        usual_days_of_week = [1, 2, 3, 4, 5],
+        usual_days_of_week = [1, 2, 3, 4, 5, 6, 7],
         consistency_score = 4
     ),
     HabitPatternModel (
@@ -44,7 +40,7 @@ def generate_user_patterns(seed: int) -> HabitPatternModel:
     r = random.Random(seed)
 
     patterns = []
-    chosen = r.sample(PATTERNS, k = 1)
+    chosen = r.sample(PATTERNS, k = 2)
     
     for p in chosen:
         p2 = p.model_copy()
@@ -93,60 +89,14 @@ def generate_events_for_user(user_id: str, patterns: HabitPatternModel, days: in
                 
     return events
 
-def sample_synthetic_data(events: EventModel):
-    rows = []
-
-    df = pd.DataFrame(data = events)
-    
-    if df.empty: return "No events"
-    
-    df["start_date"] = (pd.to_datetime(df["start"])).dt.to_pydatetime()
-    df["end_date"] = (pd.to_datetime(df["end"])).dt.to_pydatetime()
-    group = df.groupby(["user_id", "event_title"])
-    
-    for (user, event_title), g in group:
-        g = g.sort_values("start_date").reset_index(drop = True)
-        
-        g["previous_start"] = g["start_date"].shift(1)
-        
-        g["interval_days"] = [
-            (curr - prev).total_seconds() / (3600 * 24) if prev is not pd.NaT else 0
-            for curr, prev in zip(g["start_date"], g["previous_start"])
-        ]
-        
-        for i in range(1, len(g) - 1):
-            start_i = i - SEQ_LEN + 1
-            
-            if start_i < 1: continue
-            
-            seq = g.loc[start_i:i, "interval_days"].tolist()
-            
-            if len(seq) != SEQ_LEN: continue
-            
-            last_row = g.loc[i]
-            next_row = g.loc[i + 1]
-            label = (next_row["start_date"] - last_row["start_date"]).total_seconds() / (3600 * 24)
-            rows.append({
-                "user_id": user,
-                "event_title": event_title,
-                "last_timestamp": last_row["start_date"].isoformat(),
-                "seq_intervals": seq,
-                "last_hour": last_row["start_date"].hour + last_row["start_date"].minute / 60.0,
-                "last_weekday": int(last_row["start_date"].weekday()),
-                "last_duration": (last_row["end_date"] - last_row["start_date"]).total_seconds() / 3600.0,
-                "label_next_interval": float(label)
-            })
-    
-    return rows
-
 db = []
 
-user_ids = generate_users(1)
+user_ids = generate_users(1000)
 
 for i, user_id in enumerate(user_ids):
     patterns = generate_user_patterns(seed = 1000 + i)
     events = generate_events_for_user(user_id, patterns, DAYS_PER_USER)
-    db.append(events)
+    db.extend(events)
 
 with open(OUTPUT / "synthetic_events.json", "w") as f:
     json.dump(db, f, indent = 4)
