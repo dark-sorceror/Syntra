@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 export default function Home() {
-    const [response, setResponse] = useState<string>("");
-    const [loading, setLoading] = useState(false);
+    const [ response, setResponse ] = useState<string>("");
+    const [ loading, setLoading ] = useState(false);
 
     const testBackend = async () => {
         setLoading(true);
@@ -31,7 +31,7 @@ export default function Home() {
             const data = await res.json();
 
             setResponse(
-                `AI Suggestion: ${data.suggestion} (Confidence: ${data.confidence})`
+                `AI Suggestion: ${ data.suggestion } (Confidence: ${ data.confidence })`
             );
         } catch (error) {
             setResponse("Failed to get AI suggestion");
@@ -41,30 +41,30 @@ export default function Home() {
     };
 
     return (
-        <div style={{ padding: "2rem" }}>
+        <div className="wrapper" style={{ padding: "2rem" }}>
             <h1 style={{ fontSize: 50 }}>Syntra</h1>
 
-            <div style={{ marginBottom: "1rem" }}>
+            <div className="test" style={{ marginBottom: "1rem" }}>
                 <button
-                    onClick={testBackend}
-                    disabled={loading}
+                    onClick={ testBackend }
+                    disabled={ loading }
                     style={{ marginRight: "1rem", padding: "0.5rem 1rem" }}
                 >
                     Test Backend
                 </button>
 
                 <button
-                    onClick={getAISuggestion}
-                    disabled={loading}
+                    onClick={ getAISuggestion }
+                    disabled={ loading }
                     style={{ padding: "0.5rem 1rem" }}
                 >
                     Get AI Suggestion
                 </button>
             </div>
 
-            {loading && <p>Loading...</p>}
+            { loading && <p>Loading...</p> }
 
-            {response && (
+            { response && (
                 <div
                     style={{
                         marginTop: "1rem",
@@ -73,9 +73,9 @@ export default function Home() {
                         borderRadius: "8px",
                     }}
                 >
-                    <strong>Response:</strong> {response}
+                    <strong>Response:</strong> { response }
                 </div>
-            )}
+            ) }
         </div>
     );
 }
