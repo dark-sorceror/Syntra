@@ -5,7 +5,7 @@ from pathlib import Path
 
 from datetime import datetime, timedelta, time
 
-from models import EventModel, HabitPatternModel
+from data_models import EventModel, HabitPatternModel
 
 OUTPUT = Path("./server/data/seed") # ./server/data/raw in the future
 OUTPUT.mkdir(exist_ok = True)
@@ -31,6 +31,8 @@ PATTERNS = [
         consistency_score = 2
     )  
 ]
+
+db = []
 
 def generate_users(n: int = NUM_USERS) -> list[str]:
     return [f"user_{i:04d}" for i in range(n)]
@@ -89,16 +91,15 @@ def generate_events_for_user(user_id: str, patterns: HabitPatternModel, days: in
                 
     return events
 
-db = []
+if __name__ == "__main__":
+    user_ids = generate_users(1000)
 
-user_ids = generate_users(1000)
+    for i, user_id in enumerate(user_ids):
+        patterns = generate_user_patterns(seed = 1000 + i)
+        events = generate_events_for_user(user_id, patterns, DAYS_PER_USER)
+        db.extend(events)
 
-for i, user_id in enumerate(user_ids):
-    patterns = generate_user_patterns(seed = 1000 + i)
-    events = generate_events_for_user(user_id, patterns, DAYS_PER_USER)
-    db.extend(events)
-
-with open(OUTPUT / "synthetic_events.json", "w") as f:
-    json.dump(db, f, indent = 4)
-    
-print("Saved to synthetic_events.json")
+    with open(OUTPUT / "synthetic_events.json", "w") as f:
+        json.dump(db, f, indent = 4)
+        
+    print("Saved to data/seed/synthetic_events.json")

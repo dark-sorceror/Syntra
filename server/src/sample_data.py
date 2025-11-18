@@ -1,12 +1,7 @@
-import json
-
 import pandas as pd
 
-from pathlib import Path
+from data_models import EventModel
 
-from models import EventModel
-
-OUTPUT = Path("./server/data/seed")
 SEQ_LEN = 2
 
 def sample_synthetic_data(events: EventModel):
@@ -18,9 +13,8 @@ def sample_synthetic_data(events: EventModel):
     
     df["start_date"] = (pd.to_datetime(df["start"], format="mixed")).apply(lambda x: x.to_pydatetime())
     df["end_date"] = (pd.to_datetime(df["end"], format="mixed")).apply(lambda x: x.to_pydatetime())
-    group = df.groupby(["user_id", "event_title"])
     
-    print(df.groupby(["user_id", "event_title"]).size().sort_values())
+    group = df.groupby(["user_id", "event_title"])
     
     for (user, event_title), g in group:
         g = g.sort_values("start_date").reset_index(drop = True)
@@ -29,6 +23,7 @@ def sample_synthetic_data(events: EventModel):
         
         g["interval_days"] = [
             (curr - prev).total_seconds() / (3600 * 24) if prev is not pd.NaT else 0
+            
             for curr, prev in zip(g["start_date"], g["previous_start"])
         ]
         
@@ -43,7 +38,9 @@ def sample_synthetic_data(events: EventModel):
             
             last_row = g.loc[i]
             next_row = g.loc[i + 1]
+            
             label = (next_row["start_date"] - last_row["start_date"]).total_seconds() / (3600 * 24)
+
             rows.append({
                 "user_id": user,
                 "event_title": event_title,
@@ -56,15 +53,3 @@ def sample_synthetic_data(events: EventModel):
             })
     
     return rows
-
-with open(OUTPUT / "synthetic_events.json", "r") as f:
-    data = json.load(f)
-
-flat = [item for sub in data for item in sub]
-
-samples = sample_synthetic_data(flat)
-
-df_samples = pd.DataFrame(samples)
-df_samples.to_parquet(OUTPUT / "dataset.parquet", index=False)
-
-print(f"Saved dataset.parquet with {len(df_samples)} samples")

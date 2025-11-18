@@ -3,18 +3,23 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.models import EventModel
+from src.data_models import EventModel
 from src.pattern_recognition import extract_patterns
 
-app = FastAPI()
+app = FastAPI(
+    title = "Syntra Backend",
+    description = "Prediction models and database handling",
+    version = "1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
+    allow_origins = [
         "http://localhost:3000"
     ],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
 )
 
 BASE_URL = "http://localhost:8000"
