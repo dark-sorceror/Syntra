@@ -1,15 +1,16 @@
+import os
 import random
 import json
 from pathlib import Path
 from datetime import datetime, timedelta, time
 
-from ..src.data_schemas import EventModel, HabitPatternModel
+from src.data_schemas import EventModel, HabitPatternModel
 
 OUTPUT_PATH = Path("../data/seed") # ./server/data/raw in the future
 OUTPUT_PATH.mkdir(exist_ok = True)
 
 NUM_USERS = 1000
-DAYS_PER_USER = 5
+DAYS_PER_USER = 20
 
 PATTERNS = [
     HabitPatternModel (
@@ -17,7 +18,7 @@ PATTERNS = [
         frequency = 3,
         average_start_time = 16.0,
         average_duration_hours = 5.0,
-        usual_days_of_week = [1, 2, 3, 4, 5, 6, 7],
+        usual_days_of_week = [1, 3, 4, 5, 6],
         consistency_score = 4
     ),
     HabitPatternModel (
@@ -59,7 +60,9 @@ def generate_user_patterns(seed: int) -> HabitPatternModel:
         
     return patterns
 
-def generate_events_for_user(user_id: str, patterns: HabitPatternModel, days: int = DAYS_PER_USER) -> list[dict[str, any]]:
+def generate_events_for_user(user_id: str, 
+                             patterns: HabitPatternModel, 
+                             days: int = DAYS_PER_USER) -> list[dict[str, any]]:
     # Generate synthetically based on the patterns observed to expand dataset
     today = datetime.now().date()
     events = []
@@ -90,14 +93,15 @@ def generate_events_for_user(user_id: str, patterns: HabitPatternModel, days: in
     return events
 
 if __name__ == "__main__":
-    user_ids = generate_users(1000)
+    user_ids = generate_users(NUM_USERS)
 
     for i, user_id in enumerate(user_ids):
-        patterns = generate_user_patterns(seed = 1000 + i)
+        patterns = generate_user_patterns(seed = NUM_USERS + i)
         events = generate_events_for_user(user_id, patterns, DAYS_PER_USER)
-        db.extend(events)
+        db.append(events)
 
     with open(OUTPUT_PATH / "synthetic_events.json", "w") as f:
         json.dump(db, f, indent = 4)
         
-    print(f"Saved to {OUTPUT_PATH.resolve()}/synthetic_events.json")
+    print(f"\nGenerated {len(db):,} user data; {DAYS_PER_USER * NUM_USERS:,} events ({os.path.getsize(OUTPUT_PATH / "synthetic_events.json") / 100000:,.1f} MB)")
+    print(f"Saved to {OUTPUT_PATH.resolve()}\\synthetic_events.json\n")

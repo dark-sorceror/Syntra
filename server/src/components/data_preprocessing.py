@@ -2,7 +2,7 @@ import pandas as pd
 
 from ..data_schemas import EventModel
 
-SEQ_LEN = 3
+SEQ_LEN = 6
 
 def sample_synthetic_data(events: EventModel):
     rows = []

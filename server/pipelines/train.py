@@ -5,8 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from pathlib import Path
 
-from ..src.components.trainer import Trainer
-from ..src.components.model import IntervalPredictor
+from src.components.trainer import Trainer
+from src.components.model import IntervalPredictor
 
 def split_data(x, y, train = 0.8, val = 0.1):
     x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size = 1 - train)
@@ -16,10 +16,10 @@ def split_data(x, y, train = 0.8, val = 0.1):
     return x_train, x_val, x_test, y_train, y_val, y_test
 
 if __name__ == "__main__":
-    DATA = Path("./server/data/seed")
+    DATA_PATH = Path("../data/seed")
 
-    x = np.load(DATA / "x.npy")
-    y = np.load(DATA / "y.npy")
+    x = np.load(DATA_PATH / "x.npy")
+    y = np.load(DATA_PATH / "y.npy")
 
     scaler = StandardScaler()
     x_scaled = scaler.fit_transform(x)
@@ -56,9 +56,9 @@ if __name__ == "__main__":
         if not epoch % 20:
             print(f"Epoch {epoch}, Train Loss = {train_loss:.4f}, Val Loss = {val_loss:.4f}")
 
-    torch.save(model.state_dict(), "server/FNN_model.pth")
+    torch.save(model.state_dict(), "../models/FNN_model.pth")
 
-    np.save(DATA / "scaler_mean.npy", scaler.mean_)
-    np.save(DATA / "scaler_scale.npy", scaler.scale_)
+    np.save(DATA_PATH / "scaler_mean.npy", scaler.mean_)
+    np.save(DATA_PATH / "scaler_scale.npy", scaler.scale_)
     
     print("Training complete")

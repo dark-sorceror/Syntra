@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from pathlib import Path
 
-from ..src.components.model import IntervalPredictor
+from src.components.model import IntervalPredictor
 
 def scale_input(x, mean, scale): return (x - mean) / scale
 
