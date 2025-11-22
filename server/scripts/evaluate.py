@@ -4,14 +4,14 @@ import pandas as pd
 from pathlib import Path
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-from models import IntervalPredictor
+from src.components.model import IntervalPredictor
 
 pd.set_option('display.max_rows', None)
 
-def scale_input(x, mean, scale): return (x - mean) / scale
+scale_input = lambda x, mean, scale: (x - mean) / scale
 
 if __name__ == "__main__":
-    DATA = Path("server/data/seed")
+    DATA = Path("../data/seed")
 
     df = pd.read_parquet(DATA / "dataset.parquet")
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     input_size = scale.shape[0]
     
     model = IntervalPredictor(input_size)
-    model.load_state_dict(torch.load("server/FNN_model.pth"))
+    model.load_state_dict(torch.load("../models/FNN_model.pth"))
     model.eval()
 
     pred_rows = []
@@ -67,4 +67,4 @@ if __name__ == "__main__":
     print(f"MAE : {mae:.4f} days")
     print(f"RMSE: {rmse:.4f} days")
     print(f"R²  : {r2:.4f}")
-    print(f"%: {total_percentage:.4f} %\n")
+    print(f"%   : {total_percentage:.4f} %\n")

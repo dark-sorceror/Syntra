@@ -1,11 +1,9 @@
 import json
-
 import numpy as np
 import pandas as pd
-
 from pathlib import Path
 
-from sample_data import sample_synthetic_data
+from ..src.components.data_preprocessing import sample_synthetic_data
 
 OUTPUT = Path("./server/data/seed")
 

@@ -1,11 +1,11 @@
 app:
-name: "Syntra_Server"
-debug: false
-host: "0.0.0.0"
-port: 8000
+    name: "Syntra_Server"
+    debug: false
+    host: "0.0.0.0"
+    port: 8000
 
 paths:
-raw_data: "data/raw/input_data.csv"
-processed_data: "data/processed/cleaned_data.parquet"
-model_save_path: "models/fnn/version_1/FNN_model.pth"
-logs: "logs/server.log"
+    raw_data: "data/raw/input_data.csv"
+    processed_data: "data/processed/cleaned_data.parquet"
+    model_save_path: "models/fnn/version_1/FNN_model.pth"
+    logs: "logs/server.log"

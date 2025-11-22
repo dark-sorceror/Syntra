@@ -1,8 +1,8 @@
 import pandas as pd
 
-from data_models import EventModel
+from ..data_schemas import EventModel
 
-SEQ_LEN = 2
+SEQ_LEN = 3
 
 def sample_synthetic_data(events: EventModel):
     rows = []

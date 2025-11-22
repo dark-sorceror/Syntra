@@ -1,14 +1,12 @@
 import random
 import json
-
 from pathlib import Path
-
 from datetime import datetime, timedelta, time
 
-from data_models import EventModel, HabitPatternModel
+from ..src.data_schemas import EventModel, HabitPatternModel
 
-OUTPUT = Path("./server/data/seed") # ./server/data/raw in the future
-OUTPUT.mkdir(exist_ok = True)
+OUTPUT_PATH = Path("../data/seed") # ./server/data/raw in the future
+OUTPUT_PATH.mkdir(exist_ok = True)
 
 NUM_USERS = 1000
 DAYS_PER_USER = 5
@@ -99,7 +97,7 @@ if __name__ == "__main__":
         events = generate_events_for_user(user_id, patterns, DAYS_PER_USER)
         db.extend(events)
 
-    with open(OUTPUT / "synthetic_events.json", "w") as f:
+    with open(OUTPUT_PATH / "synthetic_events.json", "w") as f:
         json.dump(db, f, indent = 4)
         
-    print("Saved to data/seed/synthetic_events.json")
+    print(f"Saved to {OUTPUT_PATH.resolve()}/synthetic_events.json")

@@ -1,9 +1,8 @@
 import statistics
 from collections import Counter
-
 from datetime import datetime
 
-from data_models import HabitModel, HabitPatternModel
+from ..data_schemas import HabitModel, HabitPatternModel
 
 def extract_patterns(user_id: str, db: dict):
     user_events = [i for i in db["events"] if i["user_id"] == user_id]

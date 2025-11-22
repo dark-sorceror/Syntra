@@ -5,8 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from pathlib import Path
 
-from trainer import Trainer
-from models import IntervalPredictor
+from ..src.components.trainer import Trainer
+from ..src.components.model import IntervalPredictor
 
 def split_data(x, y, train = 0.8, val = 0.1):
     x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size = 1 - train)
