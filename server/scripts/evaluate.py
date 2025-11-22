@@ -23,48 +23,45 @@ if __name__ == "__main__":
     model = IntervalPredictor(input_size)
     model.load_state_dict(torch.load("../models/FNN_model.pth"))
     model.eval()
-
-    pred_rows = []
+    
     percentage = 0
 
-    for i, row in df.iterrows():        
-        seqs = np.stack(row["seq_intervals"])
-
-        x = np.array([
-            *seqs,
-            row["last_hour"],
-            row["last_weekday"],
-            row["last_duration"]
-        ])
-
-        x_scaled = scale_input(x, mean, scale)
-        t = torch.tensor(x_scaled, dtype = torch.float32)
-
-        with torch.no_grad():
-            pred = model(t).item()
-            
-        error = pred - row["label_next_interval"]
-        percentage += 1 - (error) / row["label_next_interval"] 
-
-        pred_rows.append({
-            "user_id": row["user_id"],
-            "event_title": row["event_title"],
-            "actual": row["label_next_interval"],
-            "predicted": pred,
-            "error":  error,
-        })
-
-    df_preds = pd.DataFrame(pred_rows)
+    seqs = np.stack(df["seq_intervals"])
     
-    print(df_preds)
+    extra = np.vstack([
+        df["last_hour"].to_numpy(),
+        df["last_weekday"].to_numpy(),
+        df["last_duration"].to_numpy()
+    ]).T
+    
+    x = np.hstack([seqs, extra])
+
+    x_scaled = scale_input(x, mean, scale)
+    t = torch.tensor(x_scaled, dtype = torch.float32)
+
+    model.eval()
+    with torch.no_grad():
+        pred = model(t).detach().numpy().flatten()
+        
+    error = pred - df["label_next_interval"]
+
+    df_preds = pd.DataFrame({
+        "user_id": df["user_id"],
+        "event_title": df["event_title"],
+        "actual": df["label_next_interval"],
+        "predicted": pred,
+        "error":  error
+    })
 
     mae = mean_absolute_error(df_preds["actual"], df_preds["predicted"])
     rmse = np.sqrt(mean_squared_error(df_preds["actual"], df_preds["predicted"]))
     r2 = r2_score(df_preds["actual"], df_preds["predicted"])
-    total_percentage = percentage / df_preds.shape[0] * 100
+    mean_percentage = (1 - np.abs(error)).mean() * 100
+    
+    print(df_preds)
 
     print("\n=== Model Accuracy ===")
     print(f"MAE : {mae:.4f} days")
     print(f"RMSE: {rmse:.4f} days")
     print(f"R²  : {r2:.4f}")
-    print(f"%   : {total_percentage:.4f} %\n")
+    print(f"%   : {mean_percentage:.4f} %\n")
