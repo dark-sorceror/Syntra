@@ -27,13 +27,11 @@ def predict(x: np.ndarray) -> np.ndarray:
         
         return output.numpy()
     
-if __name__ == "__main__":
-    # Test 1 - User 0000 Study Habits
+def prediction_for_user(user: int, habit: str, re: bool = False, compact: bool = False) -> float:
     with open(DATA_PATH / 'synthetic_events.json', 'r') as f:
         data = json.load(f)
-    
-    habit = "Study"
-    events = [data[0][i] for i in range(len(data[0])) if data[0][i]["event_title"] == habit]
+        
+    events = [data[user][i] for i in range(len(data[user])) if data[user][i]["event_title"] == habit]
     
     last_start = datetime.fromisoformat(events[0]["start"])
     last_end = datetime.fromisoformat(events[0]["end"])
@@ -57,8 +55,40 @@ if __name__ == "__main__":
     actual = intervals.pop()
     sample = np.array([intervals + features])
     predicted = predict(sample)[0][0]
-    error = abs(actual - predicted) / actual * 100
+    error = abs(actual - predicted) / actual
     
-    print(f"\nPredicted next habit occurence: {predicted:,.4f} days")
+    if re: return float(error)
+    
+    if compact:
+        print(f"Accuracy: {((1 - error) * 100):,.2f}%\n---")
+        
+        return
+    
+    print(f"\n===\n\nPrevious {SEQ_LEN} intervals: {[round(i, 4) for i in intervals]}")
+    print(f"Features: {features}\n")
+    print(f"Predicted next habit occurence: {predicted:,.4f} days")
     print(f"Actual next habit occurence: {actual:,.4f} days")
-    print(f"Percentage Error: {error:,.2f}%\n")
+    print(f"Percentage Error: {(error * 100):,.2f}%")
+    print(f"Accuracy: {((1 - error) * 100):,.2f}%")
+    
+def average_prediction_error() -> None:
+    with open(DATA_PATH / 'synthetic_events.json', 'r') as f:
+        data = json.load(f)
+    
+    total_error = []
+    
+    for i in range(len(data)):
+        try:
+            error = prediction_for_user(i, "Study", True, False) + prediction_for_user(i, "Gym", True, False)
+            total_error.append(error)
+        except Exception: continue
+
+    return sum(total_error) / (len(total_error) * 2)
+    
+if __name__ == "__main__":
+    average_prediction_error = average_prediction_error()
+    prediction_for_user(0, "Study")
+    prediction_for_user(0, "Gym")
+    
+    print(f"\n===\n\nAverage prediction error for user: {(average_prediction_error * 100):.2f}%")
+    print(f"Average Accuracy: {((1 - average_prediction_error) * 100):.2f}%\n")
