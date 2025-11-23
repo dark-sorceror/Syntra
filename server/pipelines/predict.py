@@ -60,5 +60,5 @@ if __name__ == "__main__":
     error = abs(actual - predicted) / actual * 100
     
     print(f"\nPredicted next habit occurence: {predicted:,.4f} days")
-    print(f"Actual next habit occurence: {actual} days")
+    print(f"Actual next habit occurence: {actual:,.4f} days")
     print(f"Percentage Error: {error:,.2f}%\n")

@@ -20,7 +20,6 @@ def sample_synthetic_data(events: EventModel):
         g = g.sort_values("start_date").reset_index(drop = True)
         
         g["previous_start"] = g["start_date"].shift(1)
-        
         g["interval_days"] = [
             (curr - prev).total_seconds() / (3600 * 24) if prev is not pd.NaT else 0
             
@@ -48,7 +47,7 @@ def sample_synthetic_data(events: EventModel):
                 "seq_intervals": seq,
                 "last_hour": last_row["start_date"].hour + last_row["start_date"].minute / 60.0,
                 "last_weekday": int(last_row["start_date"].weekday()),
-                "last_duration": (last_row["end_date"] - last_row["start_date"]).total_seconds() / 3600.0,
+                "last_duration": (last_row["end_date"] - last_row["start_date"]).total_seconds() / (3600 * 24),
                 "label_next_interval": float(label)
             })
     
