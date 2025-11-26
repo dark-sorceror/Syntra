@@ -1,24 +1,34 @@
+"use client";
+
+import { useState } from "react";
+
 import "./Sidebar.css";
 
 export default function Sidebar() {
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
+    const setSidebarState = async () => {
+        setIsSidebarExpanded((prev) => !prev);
+    };
+
     return (
-        <div className="sidebar-wrapper">
+        <div className={`sidebar-wrapper ${isSidebarExpanded ? "out" : "in"}`}>
+            <button className="expand" onClick={setSidebarState}>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
             <div className="sidebar">
-                <button className="expand">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="m9 18 6-6-6-6" />
-                    </svg>
-                </button>
                 <div className="top">
                     <div className="logo">
                         <svg
@@ -159,189 +169,6 @@ export default function Sidebar() {
                         </div>
                     </div>
                     <div className="sign-out">Sign Out</div>
-                </div>
-            </div>
-            <div className="sidebar-minimized">
-                <div className="sidebar">
-                    <div className="expand"></div>
-                    <div className="top">
-                        <div className="logo"></div>
-                        <div className="name">Syntra</div>
-                    </div>
-                    <div className="menu">
-                        <div className="option dashboard">
-                            <div className="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <rect
-                                        width="7"
-                                        height="9"
-                                        x="3"
-                                        y="3"
-                                        rx="1"
-                                    />
-                                    <rect
-                                        width="7"
-                                        height="5"
-                                        x="14"
-                                        y="3"
-                                        rx="1"
-                                    />
-                                    <rect
-                                        width="7"
-                                        height="9"
-                                        x="14"
-                                        y="12"
-                                        rx="1"
-                                    />
-                                    <rect
-                                        width="7"
-                                        height="5"
-                                        x="3"
-                                        y="16"
-                                        rx="1"
-                                    />
-                                </svg>
-                            </div>
-                        </div>
-                        <div className="option calendar">
-                            <div className="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <rect
-                                        width="18"
-                                        height="18"
-                                        x="3"
-                                        y="4"
-                                        rx="2"
-                                    />
-                                    <path d="M16 2v4" />
-                                    <path d="M3 10h18" />
-                                    <path d="M8 2v4" />
-                                    <path d="M17 14h-6" />
-                                    <path d="M13 18H7" />
-                                    <path d="M7 14h.01" />
-                                    <path d="M17 18h.01" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div className="option tasks">
-                            <div className="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344" />
-                                    <path d="m9 11 3 3L22 4" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div className="option performance">
-                            <div className="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M12 16v5" />
-                                    <path d="M16 14v7" />
-                                    <path d="M20 10v11" />
-                                    <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
-                                    <path d="M4 18v3" />
-                                    <path d="M8 14v7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="option settings">
-                        <div className="icon">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-                                <circle cx="12" cy="12" r="3" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div className="option help">
-                        <div className="icon">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 16v-4" />
-                                <path d="M12 8h.01" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div className="account-section">
-                        <div className="account">
-                            <div className="account-icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M18 20a6 6 0 0 0-12 0" />
-                                    <circle cx="12" cy="10" r="4" />
-                                    <circle cx="12" cy="12" r="10" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

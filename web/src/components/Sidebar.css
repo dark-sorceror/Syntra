@@ -6,6 +6,25 @@
     border-radius: 10px;
     padding: 2px;
     top: calc(100vh / 2);
+
+    svg {
+        transition: all 0.2s ease-in-out;
+    }
+}
+
+.out.sidebar-wrapper {
+    width: 97px;
+}
+
+.out .option-name,
+.out .name,
+.out .sign-out,
+.out .account-details {
+    display: none;
+}
+
+.in .expand svg {
+    transform: rotate(180deg);
 }
 
 .sidebar-wrapper {
@@ -66,7 +85,7 @@
     position: relative;
 }
 
-.option.active {
+.sidebar-wrapper:not(.out) .option.active {
     ::before {
         position: absolute;
         right: 0px;
@@ -76,7 +95,9 @@
         content: "";
         background-color: rgb(0, 110, 255);
     }
+}
 
+.option.active {
     .option-name {
         color: rgb(0, 110, 255);
     }
@@ -88,12 +109,12 @@
 
 .option .icon,
 .account-icon {
-    margin-right: 14px;
     width: 24px;
 }
 
 .option-name,
 .account-name {
+    margin-left: 14px;
     font-weight: 600;
     color: rgba(0, 0, 0, 0.788);
 }
