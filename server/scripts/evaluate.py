@@ -10,6 +10,13 @@ pd.set_option('display.max_rows', None)
 
 scale_input = lambda x, mean, scale: (x - mean) / scale
 
+def cyclical_encoding(value: float, maxV: float) -> np.float64:
+    # i.e. Make hour 23 adjacent to 0 recognized through a circle
+    sinc = np.sin(2 * np.pi * value / maxV)
+    cosc = np.cos(2 * np.pi * value / maxV)
+    
+    return sinc, cosc
+
 if __name__ == "__main__":
     DATA = Path("../data/seed")
 
@@ -28,10 +35,20 @@ if __name__ == "__main__":
 
     seqs = np.stack(df["seq_intervals"])
     
+    hour = df["last_hour"].to_numpy()
+    hour_sin, hour_cos = cyclical_encoding(hour, 24.0)
+    
+    weekday = df["last_weekday"].to_numpy()
+    weekday_sin, weekday_cos = cyclical_encoding(weekday, 7.0)
+    
+    duration = df["last_duration"].to_numpy()
+    
     extra = np.vstack([
-        df["last_hour"].to_numpy(),
-        df["last_weekday"].to_numpy(),
-        df["last_duration"].to_numpy()
+        hour_sin, 
+        hour_cos, 
+        weekday_sin, 
+        weekday_cos, 
+        duration
     ]).T
     
     x = np.hstack([seqs, extra])
@@ -65,3 +82,5 @@ if __name__ == "__main__":
     print(f"RMSE: {rmse:.4f} days")
     print(f"R²  : {r2:.4f}")
     print(f"%   : {mean_percentage:.4f} %\n")
+    
+    # TODO: Add evaluation of feature significance

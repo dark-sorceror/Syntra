@@ -11,6 +11,13 @@ DATA_PATH = Path("../data/seed")
 
 scale_input = lambda x, mean, scale: (x - mean) / scale
 
+def cyclical_encoding(value: float, maxV: float) -> np.float64:
+    # i.e. Make hour 23 adjacent to 0 recognized through a circle
+    sinc = np.sin(2 * np.pi * value / maxV)
+    cosc = np.cos(2 * np.pi * value / maxV)
+    
+    return sinc, cosc
+
 def predict(x: np.ndarray) -> np.ndarray:
     mean = np.load(DATA_PATH / "scaler_mean.npy")
     scale = np.load(DATA_PATH / "scaler_scale.npy")
@@ -39,8 +46,17 @@ def prediction_for_user(user: int, habit: str, re: bool = False, compact: bool =
     last_hour = last_start.hour + last_start.minute / 60 + last_start.second / 3600
     last_weekday = last_start.weekday()
     last_duration = (last_end - last_start).total_seconds() / (3600 * 24)
+
+    last_hour_sin, last_hour_cos = cyclical_encoding(last_hour, 24.0)
+    last_weekday_sin, last_weekday_cos = cyclical_encoding(last_weekday, 7.0)
     
-    features = [float(last_hour), last_weekday, float(last_duration)]
+    features = [
+        round(float(last_hour_sin), 4), 
+        round(float(last_hour_cos), 4), 
+        round(float(last_weekday_sin), 4), 
+        round(float(last_weekday_cos), 4), 
+        round(float(last_duration), 4)
+    ]
     
     intervals = []
     
@@ -79,11 +95,13 @@ def average_prediction_error() -> None:
     
     for i in range(len(data)):
         try:
-            error = prediction_for_user(i, "Study", True, False) + prediction_for_user(i, "Gym", True, False)
+            error = prediction_for_user(i, "Study", re = True) + prediction_for_user(i, "Gym", re = True)
             total_error.append(error)
         except Exception: continue
 
     return sum(total_error) / (len(total_error) * 2)
+
+    # BUG: Unfit list indexes; inconsistent data generation
     
 if __name__ == "__main__":
     average_prediction_error = average_prediction_error()

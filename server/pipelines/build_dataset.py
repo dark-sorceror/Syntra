@@ -8,6 +8,13 @@ from src.components.data_preprocessing import sample_synthetic_data
 
 OUTPUT_PATH = Path("../data/seed")
 
+def cyclical_encoding(value: float, maxV: float) -> np.float64:
+    # i.e. Make hour 23 adjacent to 0 recognized through a circle
+    sinc = np.sin(2 * np.pi * value / maxV)
+    cosc = np.cos(2 * np.pi * value / maxV)
+    
+    return sinc, cosc
+
 def build_samples():
     with open(OUTPUT_PATH / "synthetic_events.json", "r") as f:
         data = json.load(f)
@@ -28,10 +35,20 @@ def build_samples():
     
     seqs = np.stack(df_samples["seq_intervals"].to_numpy())
     
+    hour = df_samples["last_hour"].to_numpy()
+    hour_sin, hour_cos = cyclical_encoding(hour, 24.0)
+    
+    weekday = df_samples["last_weekday"].to_numpy()
+    weekday_sin, weekday_cos = cyclical_encoding(weekday, 7.0)
+    
+    duration = df_samples["last_duration"].to_numpy()
+    
     extra = np.vstack([
-        df_samples["last_hour"].to_numpy(),
-        df_samples["last_weekday"].to_numpy(),
-        df_samples["last_duration"].to_numpy()
+        hour_sin,
+        hour_cos,
+        weekday_sin,
+        weekday_cos,
+        duration
     ]).T
     
     x = np.hstack([seqs, extra])
