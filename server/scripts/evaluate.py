@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+import torch.nn as nn
 from pathlib import Path
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
@@ -16,6 +17,33 @@ def cyclical_encoding(value: float, maxV: float) -> np.float64:
     cosc = np.cos(2 * np.pi * value / maxV)
     
     return sinc, cosc
+
+def evaluate_model():
+    pass
+
+def evaluate_features(model, x_tensor, y_true, feature_names):
+    model.eval()
+    criterion = nn.MSELoss()
+    original_pred = model(x_tensor)
+    baseline_loss = criterion(original_pred, torch.tensor(y_true, dtype = torch.float32).view(-1, 1)).item()
+    
+    importances = {}
+    
+    x_numpy = x_tensor.cpu().numpy()
+    
+    for i, name in enumerate(feature_names):
+        temp_x = x_numpy.copy()
+        np.random.shuffle(temp_x[:, i])
+        
+        t_shuffled = torch.tensor(temp_x, dtype = torch.float32)
+        
+        with torch.no_grad():
+            pred = model(t_shuffled)
+            loss = criterion(pred, torch.tensor(y_true, dtype = torch.float32).view(-1, 1)).item()
+            
+        importances[name] = loss - baseline_loss
+        
+    return dict(sorted(importances.items(), key = lambda item: item[1], reverse = True))
 
 if __name__ == "__main__":
     DATA = Path("../data/seed")
@@ -59,13 +87,14 @@ if __name__ == "__main__":
     model.eval()
     with torch.no_grad():
         pred = model(t).detach().numpy().flatten()
-        
-    error = pred - df["label_next_interval"]
+    
+    actual = df["label_next_interval"]
+    error = pred - actual
 
     df_preds = pd.DataFrame({
         "user_id": df["user_id"],
         "event_title": df["event_title"],
-        "actual": df["label_next_interval"],
+        "actual": actual,
         "predicted": pred,
         "error":  error
     })
@@ -82,5 +111,3 @@ if __name__ == "__main__":
     print(f"RMSE: {rmse:.4f} days")
     print(f"R²  : {r2:.4f}")
     print(f"%   : {mean_percentage:.4f} %\n")
-    
-    # TODO: Add evaluation of feature significance
