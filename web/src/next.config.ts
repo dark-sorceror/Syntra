@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     output: "export",
     distDir: "./.next",
     outputFileTracingRoot: path.join(__dirname),
+    productionBrowserSourceMaps: false,
+    devIndicators: false,
 };
 
 export default nextConfig;

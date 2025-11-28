@@ -1,12 +1,16 @@
-import Sidebar from "@/components/Sidebar";
+import type { Metadata } from "next";
 
-import "../../styles/globals.css";
+import "./styles.css";
 
-export default function Test({ children }: { children: React.ReactNode }) {
-    return (
-        <>
-            <Sidebar />
-            <main>{children}</main>
-        </>
-    );
+export const metadata: Metadata = {
+    title: "Syntra",
+    description: "Refine your rhythm",
+};
+
+export default function RootLayout({
+    children,
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
+    return <>{children}</>;
 }

@@ -1,0 +1,58 @@
+@import url("../../styles/globals.css");
+
+.test-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.test-area {
+    width: max-content;
+    height: max-content;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.test {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.test button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: lightcoral;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+.test button:first-child {
+    margin-right: 20px;
+}
+
+.loading {
+    margin-bottom: 20px;
+}
+
+.loading.active {
+    visibility: visible;
+}
+
+.loading {
+    visibility: hidden;
+}
+
+.response {
+    width: 100%;
+    background-color: lightblue;
+    border-radius: 10px;
+    text-align: center;
+    padding: 20px;
+}
