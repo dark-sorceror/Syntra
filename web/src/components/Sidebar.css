@@ -12,19 +12,57 @@
     }
 }
 
-.out.sidebar-wrapper {
-    width: 97px;
+.out.sidebar-wrapper,
+.out .option {
+    width: min-content;
+}
+
+.option-name,
+.name,
+.sign-out,
+.account-details {
+    transition: margin 0.3s ease-in-out, opacity 0.3s ease-in-out,
+        width 0.3s ease-in-out;
 }
 
 .out .option-name,
 .out .name,
-.out .sign-out,
+.out .account-details {
+    margin: 0;
+    opacity: 0;
+    width: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.out .sign-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
 .out .account-details {
     display: none;
 }
 
+.expand svg {
+    transition: transform 0.3s ease-in-out;
+}
+
 .in .expand svg {
     transform: rotate(180deg);
+}
+
+.out .top .logo,
+.out .top .name {
+    margin: 0;
+}
+
+.out .top {
+    width: min-content;
+}
+
+.out .menu {
+    width: min-content;
 }
 
 .sidebar-wrapper {
@@ -34,6 +72,7 @@
     padding: 44px 20px;
     border-right: 3px solid rgba(226, 226, 226, 0.644);
     position: relative;
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
 }
 
 .sidebar {
@@ -46,17 +85,25 @@
 .top {
     display: flex;
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     height: fit-content;
     padding-bottom: 20px;
 }
 
+.top .logo,
+.option .icon,
+.account-icon {
+    flex-shrink: 0;
+}
+
 .top .logo {
     display: flex;
-    width: 40px;
+    width: 35px;
+    margin-left: 10px;
+
     svg {
-        stroke-width: 3px;
+        stroke-width: 2px;
     }
 }
 
@@ -133,6 +180,8 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    border-top: 3px solid rgba(226, 226, 226, 0.644);
+    margin-top: 10px;
 }
 
 .account {
@@ -140,15 +189,23 @@
     margin-bottom: 20px;
     width: 100%;
     padding: 10px 15px;
-    padding-top: 20px;
     height: 80px;
     align-items: center;
-    border-top: 3px solid rgba(226, 226, 226, 0.644);
+    margin-top: 20px;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
 }
 
 .account-details {
     display: flex;
     flex-direction: column;
+    margin-left: 14px;
+    align-items: last baseline;
+}
+
+.account:hover {
+    background-color: rgba(226, 226, 226, 0.507);
+    cursor: pointer;
 }
 
 .account-name {
@@ -159,12 +216,12 @@
     font-size: 14px;
 }
 
-.account-icon {
-    width: 35px;
-}
-
 .sign-out {
     padding: 10px;
+    height: 44px;
+    visibility: visible;
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
     background-color: lightcoral;
     display: flex;
     align-items: center;
@@ -173,6 +230,11 @@
     border-radius: 10px;
     width: 100%;
     color: white;
+}
+
+.sign-out:hover {
+    cursor: pointer;
+    scale: 1.02;
 }
 
 .sidebar-minimized {
