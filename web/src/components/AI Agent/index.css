@@ -31,19 +31,38 @@
 
 .chat {
     flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
 }
 
 .m {
-    padding: 5px 15px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border-radius: 6px;
     background-color: rgba(226, 226, 226, 0.644);
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    max-width: 70%;
     width: fit-content;
 }
 
 .user {
-    justify-self: end;
+    align-self: flex-end;
     background-color: rgba(95, 164, 255, 0.514);
+}
+
+.thinking {
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: rgba(110, 110, 110, 0.781);
+    margin-left: 10px;
+    margin-bottom: 5px;
+    visibility: hidden;
+}
+
+.thinking.true {
+    visibility: visible;
 }
 
 .chat-box {
@@ -53,6 +72,7 @@
     border-radius: 10px;
     border: 3px solid rgba(226, 226, 226, 0.644);
     padding-left: 16px;
+
     &::placeholder {
         font-weight: 600;
     }

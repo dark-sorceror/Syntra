@@ -14,7 +14,7 @@ export default function AIAgent() {
 
     const [messages, setMessages] = useState<Message[]>([
         {
-            text: "yo wsg",
+            text: "ok",
             sender: "agent",
         },
         {
@@ -22,12 +22,14 @@ export default function AIAgent() {
             sender: "user",
         },
         {
-            text: "ok",
+            text: "yo wsg",
             sender: "agent",
         },
     ]);
 
     const [input, setInput] = useState("");
+
+    const [isThinking, setIsThinking] = useState(false);
 
     const handleSidebarState = async () => {
         setIsSidebarExpanded((prev) => !prev);
@@ -51,19 +53,25 @@ export default function AIAgent() {
             sender: "user",
         };
 
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        if (!isThinking) {
+            setMessages((prevMessages) => [newMessage, ...prevMessages]);
 
-        setTimeout(() => {
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                {
-                    text: `AI response to ${input}`,
-                    sender: "agent",
-                },
-            ]);
-        }, 500);
+            setIsThinking(true);
 
-        setInput("");
+            setTimeout(() => {
+                setMessages((prevMessages) => [
+                    {
+                        text: `AI response to ${input}`,
+                        sender: "agent",
+                    },
+                    ...prevMessages,
+                ]);
+
+                setIsThinking(false);
+            }, 2000);
+
+            setInput("");
+        }
     };
 
     return (
@@ -90,6 +98,7 @@ export default function AIAgent() {
                     </div>
                 ))}
             </div>
+            <div className={`thinking ${isThinking}`}>AI is thinking...</div>
             <input
                 type="text"
                 className="chat-box"
