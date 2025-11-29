@@ -6,12 +6,12 @@
     padding: 30px 20px;
 }
 
-.calendar-wrapper .top {
+.calendar-wrapper .cw-top {
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     align-items: center;
 }
 
@@ -140,4 +140,5 @@
 
 .day.pm {
     color: rgba(165, 165, 165, 0.644);
+    font-weight: 400;
 }

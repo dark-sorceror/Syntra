@@ -94,6 +94,27 @@ export default function Home() {
             });
         }
 
+        let remainingDays;
+
+        if (calendarDays.length < 35) {
+            remainingDays = 35 - calendarDays.length;
+        } else if (calendarDays.length > 35) {
+            remainingDays = 42 - calendarDays.length;
+        } else {
+            remainingDays = 0;
+        }
+
+        for (let i = 1; i <= remainingDays; i++) {
+            const date = new Date(year, month + 1, i);
+
+            calendarDays.push({
+                day: i,
+                isCurrentMonth: false,
+                isToday: false,
+                date: date,
+            });
+        }
+
         return calendarDays;
     }, [viewDate, today]);
 
@@ -103,7 +124,7 @@ export default function Home() {
 
     return (
         <div className="calendar-wrapper">
-            <div className="top">
+            <div className="cw-top">
                 <div className="month-year">
                     {getMonthName(viewDate.getMonth())}{" "}
                     <span>{viewDate.getFullYear()}</span>
