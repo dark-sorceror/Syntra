@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState, KeyboardEvent } from "react";
+import { ChangeEvent, useState, KeyboardEvent, useEffect, useRef } from "react";
 
 import "./index.css";
 
@@ -10,7 +10,7 @@ type Message = {
 };
 
 export default function AIAgent() {
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+    const chatRef = useRef<HTMLDivElement>(null);
 
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -31,9 +31,41 @@ export default function AIAgent() {
 
     const [isThinking, setIsThinking] = useState(false);
 
-    const handleSidebarState = async () => {
-        setIsSidebarExpanded((prev) => !prev);
-    };
+    const [showChat, setShowChat] = useState(false);
+
+    useEffect(() => {
+        const handleScreenKeydown = (event: globalThis.KeyboardEvent) => {
+            const chatboxInputField = document.getElementById("chat-box");
+            
+            if (
+                event.key === "Enter" &&
+                document.activeElement?.className !== "chat-box"
+            ) {
+                event.preventDefault();
+                setShowChat(true);
+            }
+
+            chatboxInputField?.focus();
+        };
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                showChat &&
+                chatRef.current &&
+                !chatRef.current.contains(event.target as Node)
+            ) {
+                setShowChat(false);
+            }
+        };
+
+        document.addEventListener("keydown", handleScreenKeydown);
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("keydown", handleScreenKeydown);
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showChat]);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         setInput(event.target.value);
@@ -75,22 +107,10 @@ export default function AIAgent() {
     };
 
     return (
-        <div className={`ai-agent-wrapper ${isSidebarExpanded ? "out" : "in"}`}>
-            <button className="expand" onClick={handleSidebarState}>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <path d="m9 18 6-6-6-6" />
-                </svg>
-            </button>
+        <div
+            className={`ai-agent-wrapper ${showChat ? "v" : "in"}`}
+            ref={chatRef}
+        >
             <div className="chat">
                 {messages.map((message, index) => (
                     <div key={index} className={`m ${message.sender}`}>
@@ -101,6 +121,7 @@ export default function AIAgent() {
             <div className={`thinking ${isThinking}`}>AI is thinking...</div>
             <input
                 type="text"
+                id="chat-box"
                 className="chat-box"
                 placeholder="Ask anything..."
                 value={input}
