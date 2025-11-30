@@ -5,3 +5,4 @@ venv
 *.spec
 logs
 *.egg-info
+event_llm_v2
