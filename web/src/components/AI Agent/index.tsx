@@ -5,6 +5,7 @@ import { ChangeEvent, useState, KeyboardEvent, useEffect, useRef } from "react";
 import "./index.css";
 
 type Message = {
+    id: number;
     text: string;
     sender: "user" | "agent";
 };
@@ -115,30 +116,106 @@ export default function AIAgent() {
     const handleSendMessage = async () => {
         if (input.trim() === "") return;
 
-        const newMessage: Message = {
-            text: input,
-            sender: "user",
-        };
-        const promptValue = input;
-
         if (!isThinking) {
-            setMessages((prevMessages) => [newMessage, ...prevMessages]);
+            const userMessage: Message = {
+                id: Date.now() + 1,
+                text: input,
+                sender: "user",
+            };
+
+            const agentMessageID = Date.now();
+            const agentMessage: Message = {
+                id: agentMessageID,
+                text: "",
+                sender: "agent",
+            };
+
+            setMessages((prevMessages) => [
+                agentMessage,
+                userMessage,
+                ...prevMessages,
+            ]);
 
             setIsThinking(true);
-
-            setTimeout(() => {
-                setMessages((prevMessages) => [
-                    {
-                        text: `AI: ${promptValue}`,
-                        sender: "agent",
-                    },
-                    ...prevMessages,
-                ]);
-
-                setIsThinking(false);
-            }, 2000);
-            
             setInput("");
+
+            try {
+                const response = await fetch(
+                    "http://127.0.0.1:8000/internal_stream",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            user_prompt: input,
+                        }),
+                    }
+                );
+
+                if (!response.body) {
+                    throw new Error("Stream failed to start");
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                let receivedText = "";
+
+                while (true) {
+                    const { value, done } = await reader.read();
+
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+
+                    receivedText += chunk;
+
+                    setMessages((prevMessages) => {
+                        const messageIndex = prevMessages.findIndex(
+                            (m) => m.id === agentMessageID
+                        );
+
+                        if (messageIndex === -1) {
+                            console.warn("Agent message not found");
+
+                            return prevMessages;
+                        }
+
+                        const newMessages = [...prevMessages];
+
+                        newMessages[messageIndex] = {
+                            ...newMessages[messageIndex],
+                            text: receivedText,
+                        };
+
+                        return newMessages;
+                    });
+                }
+            } catch (error) {
+                setMessages((prevMessages) => {
+                    const messageIndex = prevMessages.findIndex(
+                        (m) => m.id === agentMessageID
+                    );
+
+                    if (messageIndex === -1) {
+                        console.warn("Agent message not found");
+
+                        return prevMessages;
+                    }
+
+                    const newMessages = [...prevMessages];
+
+                    newMessages[messageIndex] = {
+                        ...newMessages[messageIndex],
+                        text: `ERROR: ${error}`,
+                    };
+
+                    return newMessages;
+                });
+            } finally {
+                setIsThinking(false);
+            }
         }
     };
 
