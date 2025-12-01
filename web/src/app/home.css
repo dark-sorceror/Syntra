@@ -66,7 +66,7 @@
     font-size: 20px;
     margin: 0px 10px;
     transition: all 0.2s ease-in-out;
-    padding: 10px 30px;
+    padding: 10px 20px;
     border-radius: 10px;
 
     &:hover {
@@ -130,6 +130,7 @@
     border-top: 1px solid gray;
     padding: 10px 15px;
     font-weight: 600;
+    user-select: none;
 }
 
 .day.today {
@@ -141,4 +142,15 @@
 .day.pm {
     color: rgba(165, 165, 165, 0.644);
     font-weight: 400;
+}
+
+.event {
+    background-color: rgba(173, 216, 230, 0.658);
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    padding: 0px 7px;
+    margin-bottom: 3px;
+    font-size: 14px;
+    font-weight: 600;
 }

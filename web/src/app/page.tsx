@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 
 import "./home.css";
 
+type CalendarView = "day" | "week" | "month";
+
 interface CalendarDay {
     day: number;
     isCurrentMonth: boolean;
@@ -11,7 +13,59 @@ interface CalendarDay {
     date: Date;
 }
 
-type CalendarView = "day" | "week" | "month";
+interface Event {
+    date: Date;
+    title: string;
+}
+
+interface CalendarDayCellType {
+    day: CalendarDay;
+}
+
+export const CalendarDayCell: React.FC<CalendarDayCellType> = ({ day }) => {
+    // Import from database
+    const [events, setEvents] = useState<Event[]>([]);
+
+    const dayClass = day.isCurrentMonth ? (day.isToday ? "today" : "") : "pm";
+
+    const createNewEvent = (): void => {
+        const newEvent: Event = {
+            date: day.date,
+            title: "event",
+        };
+
+        setEvents((prevEvents) => [...prevEvents, newEvent]);
+    };
+
+    const dayEvents = events.filter((eventData) => {
+        return eventData.date.toDateString() === day.date.toDateString();
+    });
+
+    return (
+        <div
+            key={day.date.toDateString()}
+            className={`day ${dayClass}`}
+            onDoubleClick={createNewEvent}
+        >
+            {day.day}
+            {dayEvents.map((eventData, index) => (
+                <div key={index} className={`event ${eventData.title}`}>
+                    New Event
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const getDaysInMonth = (year: number, month: number): number => {
+    return new Date(year, month + 1, 0).getDate();
+};
+
+const getMonthName = (monthIndex: number): string => {
+    return new Date(2025, monthIndex, 1).toLocaleString("default", {
+        month: "long",
+    });
+};
 
 export default function Home() {
     const weekdays: string[] = [
@@ -28,16 +82,6 @@ export default function Home() {
     const [viewDate, setViewDate] = useState(new Date());
 
     const today = new Date();
-
-    const getDaysInMonth = (year: number, month: number): number => {
-        return new Date(year, month + 1, 0).getDate();
-    };
-
-    const getMonthName = (monthIndex: number): string => {
-        return new Date(2025, monthIndex, 1).toLocaleString("default", {
-            month: "long",
-        });
-    };
 
     const changeMonth = (direction: "prev" | "next"): void => {
         setViewDate((prevDate) => {
@@ -148,12 +192,11 @@ export default function Home() {
                     <div className="back" onClick={() => changeMonth("prev")}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            id="Layer_1"
-                            data-name="Layer 1"
+                            id="arrow-circle-down"
                             viewBox="0 0 24 24"
                         >
-                            <path d="M22.047,6.313c-.686-2.044-2.315-3.674-4.361-4.361-3.773-1.266-7.6-1.266-11.373,0h0c-2.045,.688-3.675,2.317-4.36,4.361-1.266,3.773-1.266,7.6,0,11.373,.686,2.044,2.315,3.674,4.361,4.361,1.887,.633,3.786,.949,5.687,.949s3.8-.316,5.687-.949c2.045-.688,3.675-2.317,4.36-4.361,1.266-3.773,1.266-7.6,0-11.373Zm-1.896,10.736c-.487,1.454-1.646,2.613-3.1,3.102-3.352,1.125-6.75,1.125-10.101,0-1.454-.488-2.613-1.647-3.101-3.102-1.125-3.351-1.125-6.749,0-10.1,.487-1.454,1.646-2.613,3.101-3.102,3.352-1.125,6.75-1.125,10.101,0,1.454,.488,2.613,1.647,3.101,3.102,1.125,3.351,1.125,6.749,0,10.1Z" />
-                            <path d="M13.607,9.057c.526-.169,.814-.732,.645-1.259-.17-.524-.732-.813-1.259-.644-4.269,1.378-4.882,4.535-4.907,4.669-.021,.117-.021,.236,0,.354,.024,.134,.638,3.291,4.907,4.669,.102,.033,.206,.049,.307,.049,.422,0,.815-.27,.952-.692,.169-.526-.119-1.09-.645-1.259-2.578-.833-3.319-2.409-3.5-2.941,.186-.544,.93-2.114,3.5-2.945Z" />
+                            <path d="M24,12A12,12,0,1,0,12,24,12.013,12.013,0,0,0,24,12ZM2,12A10,10,0,1,1,12,22,10.011,10.011,0,0,1,2,12Z" />
+                            <path d="M8,12a2.993,2.993,0,0,1,.752-1.987c.291-.327.574-.637.777-.84L12.353,6.3a1,1,0,0,1,1.426,1.4L10.95,10.58c-.187.188-.441.468-.7.759a1,1,0,0,0,0,1.323c.258.29.512.57.693.752L13.779,16.3a1,1,0,0,1-1.426,1.4L9.524,14.822c-.2-.2-.48-.507-.769-.833A2.99,2.99,0,0,1,8,12Z" />
                         </svg>
                     </div>
                     <div className="today" onClick={goToToday}>
@@ -165,10 +208,11 @@ export default function Home() {
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
+                            id="arrow-circle-down"
                             viewBox="0 0 24 24"
                         >
-                            <path d="M22.047,6.313c-.686-2.044-2.315-3.674-4.361-4.361-3.773-1.266-7.6-1.266-11.374,0-2.045,.688-3.675,2.317-4.36,4.361-1.266,3.773-1.266,7.6,0,11.373,.686,2.044,2.315,3.674,4.361,4.361,1.887,.633,3.787,.949,5.687,.949s3.8-.316,5.687-.949h0c2.045-.688,3.675-2.317,4.36-4.361,1.266-3.773,1.266-7.6,0-11.373Zm-1.896,10.736c-.487,1.454-1.646,2.613-3.101,3.102-3.352,1.125-6.75,1.125-10.101,0-1.454-.488-2.613-1.647-3.101-3.102-1.125-3.351-1.125-6.749,0-10.1,.487-1.454,1.646-2.613,3.1-3.102,1.676-.562,3.363-.843,5.051-.843s3.375,.28,5.05,.843c1.454,.488,2.613,1.647,3.101,3.102,1.125,3.351,1.125,6.749,0,10.1Z" />
-                            <path d="M11.007,7.154c-.525-.17-1.089,.119-1.259,.644-.169,.526,.119,1.09,.645,1.259,2.578,.833,3.319,2.409,3.5,2.941-.186,.544-.93,2.114-3.5,2.945-.526,.169-.814,.732-.645,1.259,.137,.423,.529,.692,.952,.692,.102,0,.205-.016,.307-.049,4.269-1.378,4.882-4.535,4.907-4.669,.021-.117,.021-.236,0-.354-.024-.134-.638-3.291-4.907-4.669Z" />
+                            <path d="M0,12A12,12,0,1,0,12,0,12.013,12.013,0,0,0,0,12Zm22,0A10,10,0,1,1,12,2,10.011,10.011,0,0,1,22,12Z" />
+                            <path d="M16,12a2.993,2.993,0,0,1-.752,1.987c-.291.327-.574.637-.777.84L11.647,17.7a1,1,0,1,1-1.426-1.4L13.05,13.42c.187-.188.441-.468.7-.759a1,1,0,0,0,0-1.323c-.258-.29-.512-.57-.693-.752L10.221,7.7a1,1,0,1,1,1.426-1.4l2.829,2.879c.2.2.48.507.769.833A2.99,2.99,0,0,1,16,12Z" />
                         </svg>
                     </div>
                 </div>
@@ -195,18 +239,7 @@ export default function Home() {
                 >
                     {generateDaysInMonth.map(
                         (day: CalendarDay, index: number) => (
-                            <div
-                                key={index}
-                                className={`day ${
-                                    day.isCurrentMonth
-                                        ? day.isToday
-                                            ? "today"
-                                            : ""
-                                        : "pm"
-                                }`}
-                            >
-                                {day.day}
-                            </div>
+                            <CalendarDayCell key={index} day={day} />
                         )
                     )}
                 </div>
