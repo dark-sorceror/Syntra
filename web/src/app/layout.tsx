@@ -1,15 +1,20 @@
 import Sidebar from "@/components/Sidebar/Sidebar";
 import AIAgent from "@/components/AI Agent";
 
+import { KeydownProvider } from "../contexts/Keydown";
+
 import "../styles/globals.css";
 
 export default function Test({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
             <body>
-                <Sidebar />
-                <div className="wrapper">{children}</div>
-                <AIAgent />
+                <KeydownProvider>
+                    <Sidebar />
+                    <div className="wrapper">{children}</div>
+                    <AIAgent />
+                    <div id="portal-root"></div>
+                </KeydownProvider>
             </body>
         </html>
     );

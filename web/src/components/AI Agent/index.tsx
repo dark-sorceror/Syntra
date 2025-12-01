@@ -1,6 +1,15 @@
 "use client";
 
-import { ChangeEvent, useState, KeyboardEvent, useEffect, useRef } from "react";
+import {
+    ChangeEvent,
+    useState,
+    KeyboardEvent,
+    useEffect,
+    useRef,
+    useContext,
+} from "react";
+
+import { KeydownContext } from "@/contexts/Keydown";
 
 import "./index.css";
 
@@ -69,19 +78,27 @@ export default function AIAgent() {
 
     const [showChat, setShowChat] = useState(false);
 
+    const { register, unregister } = useContext(KeydownContext);
+
     useEffect(() => {
         const handleScreenKeydown = (event: globalThis.KeyboardEvent) => {
-            const chatboxInputField = document.getElementById("chat-box");
+            const target = event.target as HTMLElement;
 
             if (
-                event.key === "Enter" &&
-                document.activeElement?.className !== "chat-box"
+                target instanceof HTMLInputElement ||
+                target instanceof HTMLTextAreaElement ||
+                target.isContentEditable
             ) {
+                return;
+            }
+
+            if (event.key === "Enter") {
                 event.preventDefault();
+
                 setShowChat(true);
             }
 
-            chatboxInputField?.focus();
+            document.getElementById("chat-box")?.focus();
         };
 
         const handleClickOutside = (event: MouseEvent) => {
@@ -94,14 +111,14 @@ export default function AIAgent() {
             }
         };
 
-        document.addEventListener("keydown", handleScreenKeydown);
+        register(handleScreenKeydown);
         document.addEventListener("mousedown", handleClickOutside);
 
         return () => {
-            document.removeEventListener("keydown", handleScreenKeydown);
+            unregister(handleScreenKeydown);
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [showChat]);
+    }, [showChat, register, unregister]);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         setInput(event.target.value);

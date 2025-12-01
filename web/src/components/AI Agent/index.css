@@ -98,8 +98,11 @@
     border: 3px solid transparent;
     position: relative;
     display: block;
-    background-color: rgba(236, 236, 236, 0.199);
-    background: linear-gradient(white, white) padding-box,
+    background: linear-gradient(
+                rgba(241, 241, 241, 0.952),
+                rgba(241, 241, 241, 0.952)
+            )
+            padding-box,
         linear-gradient(
                 20deg,
                 color(display-p3 0.6196078431 0.4784313725 1 / 1) 0%,
