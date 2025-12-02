@@ -24,14 +24,13 @@ const CalendarDayCell: React.FC<CalendarDayCellProperties> = ({
 
         if (!cellRef.current) return;
 
-        const cellRect = cellRef.current.getBoundingClientRect();
         const eventRect = e.currentTarget.getBoundingClientRect();
 
         const dateKey = getDateKey(day.date);
 
         const position = {
-            x: eventRect.left - cellRect.left,
-            y: eventRect.top - cellRect.top,
+            x: eventRect.right + 16,
+            y: eventRect.top,
         };
 
         onEventEdit(dateKey, eventIndex, position);
@@ -42,11 +41,24 @@ const CalendarDayCell: React.FC<CalendarDayCellProperties> = ({
 
         if (!cellRef.current) return;
 
-        const eventRect = e.currentTarget.getBoundingClientRect();
+        // :sob:
+        const eventRect = e.currentTarget.children.length
+            ? e.currentTarget.lastElementChild?.getBoundingClientRect()
+            : e.currentTarget.getBoundingClientRect();
 
         const position = {
-            x: eventRect.right,
-            y: eventRect.top + 35,
+            x: eventRect
+                ? e.currentTarget.children.length >= 1
+                    ? eventRect?.right + 16
+                    : eventRect?.right
+                : 0,
+            y: eventRect
+                ? e.currentTarget.children.length == 1
+                    ? eventRect?.top + 25
+                    : e.currentTarget.children.length > 1
+                    ? eventRect?.top + 25
+                    : eventRect?.top + 35
+                : 0,
         };
 
         const dateKey = getDateKey(day.date);
@@ -84,7 +96,7 @@ const CalendarDayCell: React.FC<CalendarDayCellProperties> = ({
                         {isEditing && (
                             <EventEditor
                                 x={editingEvent.position.x}
-                                y={editingEvent.position.y}
+                                y={editingEvent.position.y}  
                                 eventTitle={eventTitle}
                                 onTitleChange={onTitleChange}
                                 onSave={onEventSaveEdit}

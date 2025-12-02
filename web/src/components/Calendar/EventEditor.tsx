@@ -25,6 +25,7 @@ const EventEditor: React.FC<EventEditorProperties> = ({
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
+                <div className="ee-title">Edit Event</div>
                 <input
                     type="text"
                     autoFocus
@@ -34,8 +35,10 @@ const EventEditor: React.FC<EventEditorProperties> = ({
                         if (e.key === "Enter") onSave();
                         if (e.key === "Escape") onCancel();
                     }}
-                    placeholder="Event Title..."
+                    placeholder="Event Title"
                 />
+                <input type="text" placeholder="Location" />
+                <div className="holder-area"></div>
                 <div className="buttons">
                     <button onClick={onSave}>Save</button>
                     <button onClick={onCancel}>Cancel</button>

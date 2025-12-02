@@ -170,25 +170,52 @@
     position: fixed;
     z-index: 99999;
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     width: 400px;
     height: 500px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    outline: 1px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-editor-popup .ee-title {
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 13px;
 }
 
 .event-editor-popup input {
     width: 100%;
-    padding: 8px;
+    padding: 2px 8px;
     border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 16px;
+    border: 3px solid transparent;
+    font-size: 15px;
+    font-weight: 600;
+    outline: 1px solid black;
+    margin-bottom: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+.event-editor-popup input::placeholder {
+    font-size: 14px;
+}
+
+.event-editor-popup input:focus {
+    border-color: rgb(0, 110, 255);
 }
 
 .event-editor-popup .buttons {
     display: flex;
-    justify-content: flex-end;
     margin-top: 12px;
+    width: 100%;
+}
+
+.holder-area {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
 }
 
 .event-editor-popup button:first-child {
@@ -202,6 +229,8 @@
     cursor: pointer;
     background: #007bff;
     color: white;
+    text-align: center;
+    width: 100%;
 }
 
 .event-editor-popup button:nth-child(2) {
