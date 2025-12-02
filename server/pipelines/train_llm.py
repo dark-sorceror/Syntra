@@ -11,8 +11,8 @@ os.environ["TORCH_USE_REENTRANT"] = "False"
 # https://huggingface.co/microsoft/Phi-3-mini-4k-instruct
 # ~ 3.3 Billion parameters
 BASE_MODEL = "microsoft/Phi-3-mini-4k-instruct"
-DATASET_PATH = "data.jsonl"
-OUTPUT_PATH = "./event_llm_v2"
+DATASET_PATH = "../data/raw/llm_training_data.jsonl"
+OUTPUT_PATH = "../models/Event_LLM"
 
 EPOCHS = 3
 LR = 2e-4
