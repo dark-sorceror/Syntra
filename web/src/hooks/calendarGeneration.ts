@@ -46,35 +46,25 @@ export const generateCalendar = ({
         );
     };
 
-    const filterEventsForDay = (day: number) => {
+    const filterEventsForDay = (dateToRender: Date) => {
         return events
             .filter((event) => {
                 const eventStart = new Date(event.start);
                 const eventEnd = new Date(event.end);
-
-                const date = new Date(
-                    currentDate.getFullYear(),
-                    currentDate.getMonth(),
-                    day
-                );
 
                 const startDate = new Date(
                     eventStart.getFullYear(),
                     eventStart.getMonth(),
                     eventStart.getDate()
                 );
+
                 const endDate = new Date(
                     eventEnd.getFullYear(),
                     eventEnd.getMonth(),
                     eventEnd.getDate()
                 );
 
-                return (
-                    date >= startDate &&
-                    date <= endDate &&
-                    eventStart.getMonth() === currentDate.getMonth() &&
-                    eventStart.getFullYear() === currentDate.getFullYear()
-                );
+                return dateToRender >= startDate && dateToRender <= endDate;
             })
             .sort((a, b) => {
                 return a.start.getTime() - b.start.getTime();
@@ -91,19 +81,19 @@ export const generateCalendar = ({
         );
     };
 
-    const handleCreateNewEvent = (day: number, e: React.MouseEvent) => {
+    const handleCreateNewEvent = (date: Date, e: React.MouseEvent) => {
         const start = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            day,
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
             9,
             0
         );
 
         const end = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            day,
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
             10,
             0
         );
@@ -151,28 +141,37 @@ export const generateCalendar = ({
         onOpenEventEditor(newPosition, event);
     };
 
-    const daysInPrevMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        0
+    const days: (Date | null)[] = [];
+
+    const daysInPrevMonth = getDaysInMonth(
+        new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     );
-    const daysInMonth = getDaysInMonth(currentDate);
-    const firstDay = getFirstDayOfMonth(currentDate);
+    const firstDayOfMonth = getFirstDayOfMonth(currentDate);
 
-    const days = [];
+    const yearPrev = currentDate.getFullYear();
+    const monthPrev = currentDate.getMonth() - 1;
 
-    for (let i = 1; i < firstDay; i++) {
-        days.push(daysInPrevMonth.getDate() - (firstDay - 1) + i);
+    for (let i = 1; i < firstDayOfMonth; i++) {
+        const day = daysInPrevMonth - (firstDayOfMonth - 1) + i;
+
+        days.push(new Date(yearPrev, monthPrev, day));
     }
+
+    const yearCurrent = currentDate.getFullYear();
+    const monthCurrent = currentDate.getMonth();
+    const daysInMonth = getDaysInMonth(currentDate);
 
     for (let i = 1; i <= daysInMonth; i++) {
-        days.push(i);
+        days.push(new Date(yearCurrent, monthCurrent, i));
     }
 
-    if (days.length > 28) {
-        for (let i = 1; days.length < 35; i++) {
-            days.push(i);
-        }
+    const yearNext = currentDate.getFullYear();
+    const monthNext = currentDate.getMonth() + 1;
+
+    const daysNeeded = 35 - days.length;
+
+    for (let i = 1; i <= daysNeeded; i++) {
+        days.push(new Date(yearNext, monthNext, i));
     }
 
     return {

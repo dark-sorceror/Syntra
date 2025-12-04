@@ -46,22 +46,30 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                 {days.map((day, index) => {
                     let dayEvents = day ? filterEventsForDay(day) : [];
 
+                    const isCurrentMonth =
+                        day && day.getMonth() === currentDate.getMonth();
+
                     if (
                         day &&
                         showEventEditor &&
                         editingEvent &&
                         editingEvent.id === ""
                     ) {
-                        const eventStartDay = new Date(
-                            editingEvent.start
-                        ).getDate();
-                        const eventStartMonth = new Date(
-                            editingEvent.start
-                        ).getMonth();
+                        const newEventStartDate = new Date(
+                            editingEvent.start.getFullYear(),
+                            editingEvent.start.getMonth(),
+                            editingEvent.start.getDate()
+                        );
+
+                        const renderingDate = new Date(
+                            day.getFullYear(),
+                            day.getMonth(),
+                            day.getDate()
+                        );
 
                         if (
-                            day === eventStartDay &&
-                            currentDate.getMonth() === eventStartMonth
+                            renderingDate.getTime() ===
+                            newEventStartDate.getTime()
                         ) {
                             dayEvents = [editingEvent, ...dayEvents];
                         }
@@ -74,14 +82,13 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                 day && handleCreateNewEvent(day, e)
                             }
                             className={`day ${
-                                isToday(day || 0) && isToday(index + 1 || 0)
+                                isToday(day?.getDate() || 0) && isCurrentMonth
                                     ? "today"
                                     : ""
-                            } ${
-                                day > index + 1 || day <= index - 7 ? "pm" : ""
-                            }`}
+                            } 
+                    ${!isCurrentMonth ? "pm" : ""}`}
                         >
-                            {day}
+                            {day?.getDate()}
 
                             {dayEvents.map((event) => {
                                 const isPlaceholder =
