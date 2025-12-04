@@ -5,7 +5,7 @@ import { EventEditor } from "./EventEditor";
 
 import { CalendarEvent } from "../types/calendar";
 import { getMonthName } from "@/utils/dateUtils";
-import { eventCrud } from "@/hooks/eventCrud";
+import { calendarEventCrud } from "@/hooks/calendarEventCrud";
 
 import "./index.css";
 
@@ -24,12 +24,11 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
         position,
         showEventEditor,
         editingEvent,
-        handleCreateEvent,
-        handleUpdateEvent,
+        handleSaveEvent,
         handleDeleteEvent,
         handleOpenEventEditor,
         handleCloseEventEditor,
-    } = eventCrud({
+    } = calendarEventCrud({
         events,
         setEvents,
     });
@@ -48,6 +47,8 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
                         events={events}
                         setEvents={setEvents}
                         onOpenEventEditor={handleOpenEventEditor}
+                        editingEvent={editingEvent}
+                        showEventEditor={showEventEditor}
                     />
                 );
             default:
@@ -111,7 +112,7 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
                         }`}
                         onClick={() => setCurrentView("day")}
                     >
-                        d<span>Day</span>
+                        Day
                     </div>
                     <div
                         className={`week-switcher ${
@@ -119,7 +120,7 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
                         }`}
                         onClick={() => setCurrentView("week")}
                     >
-                        w<span>Week</span>
+                        Week
                     </div>
                     <div
                         className={`month-switcher ${
@@ -127,12 +128,20 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
                         }`}
                         onClick={() => setCurrentView("month")}
                     >
-                        m<span>Month</span>
+                        Month
                     </div>
                 </div>
                 <div className="bf-switcher">
                     <div onClick={goPrevView} className="back">
-                        a
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            id="Outline"
+                            viewBox="0 0 24 24"
+                            width="512"
+                            height="512"
+                        >
+                            <path d="M10.6,12.71a1,1,0,0,1,0-1.42l4.59-4.58a1,1,0,0,0,0-1.42,1,1,0,0,0-1.41,0L9.19,9.88a3,3,0,0,0,0,4.24l4.59,4.59a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" />
+                        </svg>
                     </div>
 
                     <div
@@ -143,8 +152,27 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
                     </div>
 
                     <div onClick={goNextView} className="forward">
-                        d
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            id="Outline"
+                            viewBox="0 0 24 24"
+                            width="512"
+                            height="512"
+                        >
+                            <path d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,15.4,9.88Z" />
+                        </svg>
                     </div>
+                </div>
+                <div className="add">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        id="Outline"
+                        viewBox="0 0 24 24"
+                        width="512"
+                        height="512"
+                    >
+                        <path d="M17,11H13V7a1,1,0,0,0-1-1h0a1,1,0,0,0-1,1v4H7a1,1,0,0,0-1,1H6a1,1,0,0,0,1,1h4v4a1,1,0,0,0,1,1h0a1,1,0,0,0,1-1V13h4a1,1,0,0,0,1-1h0A1,1,0,0,0,17,11Z" />
+                    </svg>
                 </div>
             </div>
 
@@ -155,9 +183,7 @@ export function CalendarPage({ events, setEvents }: CalendarPageProps) {
                     x={position.x}
                     y={position.y}
                     event={editingEvent}
-                    onSave={
-                        editingEvent?.id ? handleUpdateEvent : handleCreateEvent
-                    }
+                    onSave={handleSaveEvent}
                     onDelete={editingEvent?.id ? handleDeleteEvent : undefined}
                     onClose={handleCloseEventEditor}
                 />

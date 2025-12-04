@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { CalendarEvent, EventProperties, Position } from "@/types/calendar";
 
-export const eventCrud = ({ events, setEvents }: EventProperties) => {
+export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
     const [showEventEditor, setShowEventEditor] = useState(false);
     const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(
         null
@@ -18,9 +18,19 @@ export const eventCrud = ({ events, setEvents }: EventProperties) => {
             id: Date.now().toString(),
         };
 
-        setEvents([...events, event]);
+        setEvents([event, ...events]);
         setShowEventEditor(false);
         setEditingEvent(null);
+    };
+
+    const handleSaveEvent = (
+        event: CalendarEvent | Omit<CalendarEvent, "id">
+    ) => {
+        if ("id" in event && event.id !== "") {
+            handleUpdateEvent(event as CalendarEvent);
+        } else {
+            handleCreateEvent(event as Omit<CalendarEvent, "id">);
+        }
     };
 
     const handleUpdateEvent = (updatedEvent: CalendarEvent) => {
@@ -50,7 +60,7 @@ export const eventCrud = ({ events, setEvents }: EventProperties) => {
         } else if (start && end) {
             setEditingEvent({
                 id: "",
-                title: "",
+                title: "New Event",
                 start,
                 end,
                 color: "bg-blue-500",
@@ -71,6 +81,7 @@ export const eventCrud = ({ events, setEvents }: EventProperties) => {
         showEventEditor,
         editingEvent,
         handleCreateEvent,
+        handleSaveEvent,
         handleUpdateEvent,
         handleDeleteEvent,
         handleOpenEventEditor,

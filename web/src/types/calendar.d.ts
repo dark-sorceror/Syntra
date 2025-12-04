@@ -34,6 +34,8 @@ interface CalendarViewProperties {
         start?: Date,
         end?: Date
     ) => void;
+    editingEvent: CalendarEvent | null;
+    showEventEditor: boolean;
 }
 
 interface EventProperties {

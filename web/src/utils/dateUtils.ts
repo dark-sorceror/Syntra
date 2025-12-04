@@ -19,7 +19,7 @@ export const getMonthName = (monthIndex: number): string => {
 };
 
 export const getWeekdayName = (weekdayIndex: number): string => {
-    return new Date(2025, 12, weekdayIndex + 1).toLocaleString("default", {
+    return new Date(2025, 0, weekdayIndex - 1).toLocaleString("default", {
         weekday: "long",
     });
 };
