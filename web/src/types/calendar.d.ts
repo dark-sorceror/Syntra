@@ -1,43 +1,42 @@
-export type CalendarView = "day" | "week" | "month";
-
-export type EditingEvent = {
-    dateKey: string;
-    index: number;
-    position: { x: number; y: number };
-} | null;
-
-export interface CalendarDay {
-    day: number;
-    isCurrentMonth: boolean;
-    isToday: boolean;
-    date: Date;
+export interface Position {
+    x: number;
+    y: number;
 }
 
-export interface Event {
-    date: string;
+export interface CalendarEvent {
+    id: string;
     title: string;
-}
-
-export interface CalendarDayCellProperties {
-    day: CalendarDay;
-    events: Event[];
-    editingEvent: EditingEvent | null;
-    eventTitle: string;
-    onEventEdit: (
-        dateKey: string,
-        index: number,
-        position: { x: number; y: number }
-    ) => void;
-    onEventCancelEdit: () => void;
-    onEventSaveEdit: () => void;
-    onTitleChange: (title: string) => void;
+    start: Date;
+    end: Date;
+    color: string;
+    description?: string;
+    category?: string;
+    isAllDay?: boolean;
 }
 
 export interface EventEditorProperties {
     x: number;
     y: number;
-    eventTitle: string;
-    onTitleChange: (v: string) => void;
-    onSave: () => void;
-    onCancel: () => void;
+    event: CalendarEvent | null;
+    onSave: (event: CalendarEvent | Omit<CalendarEvent, "id">) => void;
+    onDelete?: (eventId: string) => void;
+    onClose: () => void;
+}
+
+interface CalendarViewProperties {
+    currentDate: Date;
+    setCurrentDate: (date: Date) => void;
+    events: CalendarEvent[];
+    setEvents: (events: CalendarEvent[]) => void;
+    onOpenEventEditor: (
+        position?: Position,
+        event?: CalendarEvent,
+        start?: Date,
+        end?: Date
+    ) => void;
+}
+
+interface EventProperties {
+    events: CalendarEvent[];
+    setEvents: (events: CalendarEvent[]) => void;
 }

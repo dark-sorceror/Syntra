@@ -1,97 +1,171 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 
-import { CalendarView, CalendarDay } from "../types/calendar";
-import { getDaysInMonth } from "../utils/dateUtils";
+import {
+    CalendarViewProperties,
+    CalendarEvent,
+    Position,
+} from "@/types/calendar";
 
-export const generateCalendar = () => {
+import {
+    getDaysInMonth,
+    getFirstDayOfMonth,
+    weekdayNames,
+    monthNames,
+} from "../utils/dateUtils";
+
+export const generateCalendar = ({
+    currentDate,
+    setCurrentDate,
+    events,
+    onOpenEventEditor,
+}: CalendarViewProperties) => {
     const today = useMemo(() => new Date(), []);
 
-    const [activeView, setActiveView] = useState<CalendarView>("month");
-    const [viewDate, setViewDate] = useState(new Date());
+    const [position, setPosition] = useState<Position>({
+        x: 0,
+        y: 0,
+    });
 
-    const changeMonth = useCallback((direction: "prev" | "next"): void => {
-        setViewDate((prevDate) => {
-            const newDate = new Date(prevDate);
+    const nextMonth = () => {
+        setCurrentDate(
+            new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+        );
+    };
 
-            newDate.setMonth(
-                prevDate.getMonth() + (direction === "next" ? 1 : -1)
+    const previousMonth = () => {
+        setCurrentDate(
+            new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+        );
+    };
+
+    const isToday = (day: number) => {
+        return (
+            day === today.getDate() &&
+            currentDate.getMonth() === today.getMonth() &&
+            currentDate.getFullYear() === today.getFullYear()
+        );
+    };
+
+    const filterEventsForDay = (day: number) => {
+        return events.filter((event) => {
+            const eventStart = new Date(event.start);
+            const eventEnd = new Date(event.end);
+
+            const date = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                day
             );
 
-            return newDate;
+            const startDate = new Date(
+                eventStart.getFullYear(),
+                eventStart.getMonth(),
+                eventStart.getDate()
+            );
+            const endDate = new Date(
+                eventEnd.getFullYear(),
+                eventEnd.getMonth(),
+                eventEnd.getDate()
+            );
+
+            return (
+                date >= startDate &&
+                date <= endDate &&
+                eventStart.getMonth() === currentDate.getMonth() &&
+                eventStart.getFullYear() === currentDate.getFullYear()
+            );
         });
-    }, []);
+    };
 
-    const goToToday = useCallback((): void => {
-        setViewDate(new Date());
-    }, []);
+    const isEventStart = (event: CalendarEvent, day: number) => {
+        const eventStart = new Date(event.start);
 
-    const handleActiveView = useCallback((view: CalendarView): void => {
-        setActiveView(view);
-    }, []);
+        return (
+            eventStart.getDate() === day &&
+            eventStart.getMonth() === currentDate.getMonth() &&
+            eventStart.getFullYear() === currentDate.getFullYear()
+        );
+    };
 
-    const generateDaysInMonth: CalendarDay[] = useMemo(() => {
-        const year = viewDate.getFullYear();
-        const month = viewDate.getMonth();
-        const firstDayOfMonth = new Date(year, month, 1);
-        const firstDayOfWeek = firstDayOfMonth.getDay();
-        const totalDays = getDaysInMonth(year, month);
-        const prevMonthOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
-        const prevMonthDaysCount = getDaysInMonth(year, month - 1);
-        const calendarDays: CalendarDay[] = [];
+    const handleCreateNewEvent = (day: number, e: React.MouseEvent) => {
+        const start = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            day,
+            9,
+            0
+        );
 
-        for (let i = 0; i < prevMonthOffset; i++) {
-            const day = prevMonthDaysCount - prevMonthOffset + 1 + i;
+        const end = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            day,
+            10,
+            0
+        );
 
-            calendarDays.push({
-                day: day,
-                isCurrentMonth: false,
-                isToday: false,
-                date: new Date(year, month - 1, day),
-            });
+        const eventRect = e.currentTarget.getBoundingClientRect();
+
+        setPosition({
+            x: eventRect.right + 16,
+            y: eventRect.top,
+        });
+
+        onOpenEventEditor(position, undefined, start, end);
+    };
+
+    const handleEditEvent = (event: CalendarEvent, e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).classList.contains("resize-handle")) {
+            return;
         }
 
-        for (let i = 1; i <= totalDays; i++) {
-            const date = new Date(year, month, i);
-            const isToday = date.toDateString() === today.toDateString();
+        e.stopPropagation();
 
-            calendarDays.push({
-                day: i,
-                isCurrentMonth: true,
-                isToday: isToday,
-                date: date,
-            });
-        }
+        const eventRect = e.currentTarget.children.length
+            ? e.currentTarget.lastElementChild?.getBoundingClientRect()
+            : e.currentTarget.getBoundingClientRect();
 
-        let remainingDays;
+        setPosition({
+            x: eventRect
+                ? e.currentTarget.children.length >= 1
+                    ? eventRect?.right + 16
+                    : eventRect?.right
+                : 0,
+            y: eventRect
+                ? e.currentTarget.children.length == 1
+                    ? eventRect?.top + 25
+                    : e.currentTarget.children.length > 1
+                    ? eventRect?.top + 25
+                    : eventRect?.top + 35
+                : 0,
+        });
 
-        if (calendarDays.length < 35) {
-            remainingDays = 35 - calendarDays.length;
-        } else if (calendarDays.length > 35) {
-            remainingDays = 42 - calendarDays.length;
-        } else {
-            remainingDays = 0;
-        }
+        onOpenEventEditor(position, event);
+    };
 
-        for (let i = 1; i <= remainingDays; i++) {
-            const date = new Date(year, month + 1, i);
+    const daysInMonth = getDaysInMonth(currentDate);
+    const firstDay = getFirstDayOfMonth(currentDate);
 
-            calendarDays.push({
-                day: i,
-                isCurrentMonth: false,
-                isToday: false,
-                date: date,
-            });
-        }
+    const days = [];
 
-        return calendarDays;
-    }, [viewDate, today]);
+    for (let i = 0; i < firstDay; i++) {
+        days.push(null);
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+        days.push(i);
+    }
 
     return {
-        viewDate,
-        activeView,
-        generateDaysInMonth,
-        changeMonth,
-        goToToday,
-        handleActiveView,
+        monthNames,
+        weekdayNames,
+        nextMonth,
+        previousMonth,
+        isToday,
+        filterEventsForDay,
+        isEventStart,
+        handleCreateNewEvent,
+        handleEditEvent,
+        days,
     };
 };

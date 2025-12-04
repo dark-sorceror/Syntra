@@ -11,7 +11,7 @@ export default function Test({ children }: { children: React.ReactNode }) {
             <body>
                 <KeydownProvider>
                     <Sidebar />
-                    <div className="wrapper">{children}</div>
+                    {children}
                     <AIAgent />
                     <div id="portal-root"></div>
                 </KeydownProvider>
