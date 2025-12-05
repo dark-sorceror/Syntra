@@ -90,7 +90,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                         >
                             {day?.getDate()}
 
-                            {dayEvents.map((event) => {
+                            {dayEvents.slice(0, 4).map((event) => {
                                 const isPlaceholder =
                                     event.id === "" &&
                                     event.title === "New Event";
@@ -108,15 +108,16 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                                 ? "placeholder-event"
                                                 : ""
                                         }`}
+                                        style={{ backgroundColor: event.color }}
                                     >
                                         {event.title}
                                     </div>
                                 );
                             })}
 
-                            {dayEvents.length > 3 && (
-                                <div className="text-xs text-gray-500 px-2">
-                                    +{dayEvents.length - 3} more
+                            {dayEvents.length > 4 && (
+                                <div className="extra-text">
+                                    +{dayEvents.length - 4} more
                                 </div>
                             )}
                         </div>

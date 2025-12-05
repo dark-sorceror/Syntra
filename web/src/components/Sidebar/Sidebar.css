@@ -142,17 +142,17 @@
         height: 100%;
         width: 3px;
         content: "";
-        background-color: rgb(0, 110, 255);
+        background-color: rgb(34, 170, 255);
     }
 }
 
 .option.active {
     .option-name {
-        color: rgb(0, 110, 255);
+        color: rgb(34, 170, 255);
     }
 
     .icon svg {
-        fill: rgb(0, 110, 255);
+        fill: rgb(34, 170, 255);
     }
 }
 

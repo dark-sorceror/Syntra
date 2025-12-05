@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPage } from "@/components/CalendarPage";
+import { Calendar } from "@/components/Calendar";
 import { CalendarEvent } from "@/types/calendar";
 
 export default function App() {
@@ -14,7 +14,7 @@ export default function App() {
     const renderPage = () => {
         switch (currentPage) {
             case "calendar":
-                return <CalendarPage events={events} setEvents={setEvents} />;
+                return <Calendar events={events} setEvents={setEvents} />;
             default:
                 return null;
         }

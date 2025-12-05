@@ -63,7 +63,7 @@ export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
                 title: "New Event",
                 start,
                 end,
-                color: "bg-blue-500",
+                color: "#87cefa",
                 category: "Work",
             });
         }

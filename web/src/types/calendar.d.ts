@@ -3,24 +3,9 @@ export interface Position {
     y: number;
 }
 
-export interface CalendarEvent {
-    id: string;
-    title: string;
-    start: Date;
-    end: Date;
-    color: string;
-    description?: string;
-    category?: string;
-    isAllDay?: boolean;
-}
-
-export interface EventEditorProperties {
-    x: number;
-    y: number;
-    event: CalendarEvent | null;
-    onSave: (event: CalendarEvent | Omit<CalendarEvent, "id">) => void;
-    onDelete?: (eventId: string) => void;
-    onClose: () => void;
+interface CalendarProperties {
+    events: CalendarEvent[];
+    setEvents: (events: CalendarEvent[]) => void;
 }
 
 interface CalendarViewProperties {
@@ -41,4 +26,24 @@ interface CalendarViewProperties {
 interface EventProperties {
     events: CalendarEvent[];
     setEvents: (events: CalendarEvent[]) => void;
+}
+
+export interface CalendarEvent {
+    id: string;
+    title: string;
+    description?: string;
+    category?: string;
+    color: string;
+    isAllDay?: boolean;
+    start: Date;
+    end: Date;
+}
+
+export interface EventEditorProperties {
+    x: number;
+    y: number;
+    event: CalendarEvent | null;
+    onSave: (event: CalendarEvent | Omit<CalendarEvent, "id">) => void;
+    onDelete?: (eventId: string) => void;
+    onClose: () => void;
 }
