@@ -7,7 +7,11 @@ class Trainer:
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.to(self.device)
         self.criterion = nn.MSELoss()
-        self.optimizer = optim.Adam(model.parameters(), lr = lr)
+        self.optimizer = optim.Adam(
+            model.parameters(), 
+            lr = lr,
+            weight_decay = 0.0001
+        )
         self.scheduler = scheduler
         self.history = {
             'train_loss': [], 
@@ -68,13 +72,13 @@ class Trainer:
                 
                 torch.save(self.model.state_dict(), checkpoint_path)
                 
-                print(f"Epoch {epoch:3d}/{epochs}: Val Loss: {val_loss:.4f} (Saved best model)")
+                print(f"Epoch {epoch:3d}/{epochs}: Training Loss: {train_loss:.4f} Validation Loss: {val_loss:.4f} (Saved best model)")
             else:
                 epochs_no_improve += 1
                 
-                print(f"Epoch {epoch:3d}/{epochs}: Val Loss: {val_loss:.4f} (No improvement)")
+                print(f"Epoch {epoch:3d}/{epochs}: Training Loss: {train_loss:.4f} Validation Loss: {val_loss:.4f} (No improvement)")
                 
-            if epochs_no_improve >= 15:
+            if epochs_no_improve >= 30:
                 print(f"Early stop")
                 
                 self.model.load_state_dict(torch.load(checkpoint_path))
@@ -84,4 +88,4 @@ class Trainer:
             if self.scheduler is not None and isinstance(self.scheduler, optim.lr_scheduler.ReduceLROnPlateau):
                 self.scheduler.step(val_loss)
                 
-        print(f"Training finished. Best Val Loss: {best_val_loss:.4f}")
+        print(f"Training finished. Best Validation Loss: {best_val_loss:.4f}")

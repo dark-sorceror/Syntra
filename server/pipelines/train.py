@@ -66,7 +66,7 @@ if __name__ == "__main__":
     trainer.fit(
         train_loader = train_loader,
         val_loader = val_loader,
-        epochs = 150,
+        epochs = 250,
         checkpoint_path = MODEL_SAVE_PATH
     )
 

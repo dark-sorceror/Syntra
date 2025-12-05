@@ -5,11 +5,16 @@ class IntervalPredictor(nn.Module):
         super().__init__()
         
         self.model = nn.Sequential(
-            nn.Linear(input_size, 32),
+            nn.Linear(input_size, 128),
             nn.ReLU(),
-            nn.Linear(32, 16),
+            nn.Dropout(0.01),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(16, 1)
+            nn.Dropout(0.01),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Dropout(0.01),
+            nn.Linear(32, 1)
         )
         
     def forward(self, x):
