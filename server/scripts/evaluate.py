@@ -21,15 +21,24 @@ def cyclical_encoding(value: float, maxV: float) -> np.float64:
 def evaluate_model():
     pass
 
-def evaluate_features(model, x_tensor, y_true, feature_names):
+def evaluate_features(
+    model: nn.Module, 
+    x_tensor: torch.Tensor, 
+    y_true: pd.Series, 
+    feature_names: list[str]
+) -> dict[str, float]:
     model.eval()
     criterion = nn.MSELoss()
-    original_pred = model(x_tensor)
-    baseline_loss = criterion(original_pred, torch.tensor(y_true, dtype = torch.float32).view(-1, 1)).item()
+    
+    y_tensor = torch.tensor(y_true.values, dtype = torch.float32).view(-1, 1)
+    
+    with torch.no_grad():
+        original_pred = model(x_tensor)
+        
+    baseline_loss = criterion(original_pred, y_tensor).item()
     
     importances = {}
-    
-    x_numpy = x_tensor.cpu().numpy()
+    x_numpy = x_tensor.cpu().numpy().copy()
     
     for i, name in enumerate(feature_names):
         temp_x = x_numpy.copy()
@@ -39,7 +48,7 @@ def evaluate_features(model, x_tensor, y_true, feature_names):
         
         with torch.no_grad():
             pred = model(t_shuffled)
-            loss = criterion(pred, torch.tensor(y_true, dtype = torch.float32).view(-1, 1)).item()
+            loss = criterion(pred, y_tensor).item()
             
         importances[name] = loss - baseline_loss
         
@@ -85,6 +94,7 @@ if __name__ == "__main__":
     t = torch.tensor(x_scaled, dtype = torch.float32)
 
     model.eval()
+    
     with torch.no_grad():
         pred = model(t).detach().numpy().flatten()
     
