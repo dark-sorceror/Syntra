@@ -22,11 +22,17 @@ def predict(x: np.ndarray) -> np.ndarray:
     mean = np.load(DATA_PATH / "scaler_mean.npy")
     scale = np.load(DATA_PATH / "scaler_scale.npy")
     
-    x_scale = scale_input(x, mean, scale)
+    n, l, f = x.shape
+    
+    x_flat = x.reshape(-1, f)
+    
+    x_scale_flat = scale_input(x_flat, mean, scale)
+    x_scale = x_scale_flat.reshape(n, l, f)
+    
     x_tensor = torch.tensor(x_scale, dtype = torch.float32)
     
     model = IntervalPredictor(input_size = x.shape[1])
-    model.load_state_dict(torch.load("../models/FNN_model.pth", map_location = "cpu"))
+    model.load_state_dict(torch.load("../models/LSTM_model.pth", map_location = "cpu"))
     model.eval()
     
     with torch.no_grad():
@@ -69,9 +75,22 @@ def prediction_for_user(user: int, habit: str, re: bool = False, compact: bool =
     intervals = intervals[::-1]
     
     actual = intervals.pop()
-    sample = np.array([intervals + features])
+    
+    L = SEQ_LEN
+    
+    X_seq = np.array(intervals)[:, np.newaxis]
+    X_seq = X_seq[np.newaxis, :, :]
+    
+    F_total = X_seq.shape[2] + len(features)
+    
+    sample_3D = np.zeros((1, L, F_total))
+    sample_3D[0, :, 0] = intervals 
+    sample_3D[0, L - 1, 1:] = features
+    
+    sample = sample_3D
+    
     predicted = predict(sample)[0][0]
-    error = abs(actual - predicted) / actual
+    error = abs(actual - predicted) / (actual + 1e-6)
     
     if re: return float(error)
     
@@ -99,7 +118,7 @@ def average_prediction_error() -> None:
             total_error.append(error)
         except Exception: continue
 
-    return sum(total_error) / (len(total_error) * 2)
+    return sum(total_error) / (len(total_error) * 2 + 1e-6)
 
     # BUG: Unfit list indexes; inconsistent data generation
     

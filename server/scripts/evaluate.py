@@ -65,12 +65,14 @@ if __name__ == "__main__":
     input_size = scale.shape[0]
     
     model = IntervalPredictor(input_size)
-    model.load_state_dict(torch.load("../models/FNN_model.pth"))
+    model.load_state_dict(torch.load("../models/LSTM_model.pth"))
     model.eval()
     
     percentage = 0
 
     seqs = np.stack(df["seq_intervals"])
+    
+    x_seq = seqs[:, :, np.newaxis]
     
     hour = df["last_hour"].to_numpy()
     hour_sin, hour_cos = cyclical_encoding(hour, 24.0)
@@ -81,14 +83,21 @@ if __name__ == "__main__":
     duration = df["last_duration"].to_numpy()
     
     extra = np.vstack([
-        hour_sin, 
-        hour_cos, 
-        weekday_sin, 
-        weekday_cos, 
+        hour_sin,
+        hour_cos,
+        weekday_sin,
+        weekday_cos,
         duration
     ]).T
     
-    x = np.hstack([seqs, extra])
+    n, l, f_seq = x_seq.shape
+    
+    f_total = f_seq + extra.shape[1]
+    
+    x_3d = np.zeros((n, l, f_total))
+    x_3d[:, :, 0] = seqs
+    x_3d[:, l - 1, 1 :] = extra 
+    x = x_3d
 
     x_scaled = scale_input(x, mean, scale)
     t = torch.tensor(x_scaled, dtype = torch.float32)

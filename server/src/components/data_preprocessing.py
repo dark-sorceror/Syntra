@@ -4,7 +4,7 @@ from ..data_schemas import EventModel
 
 SEQ_LEN = 6
 
-def sample_synthetic_data(events: EventModel):
+def sample_synthetic_data(events: EventModel) -> list[dict]:
     rows = []
 
     df = pd.DataFrame(data = events)

@@ -29,17 +29,29 @@ def split_data(x, y, train = 0.8, val = 0.1):
 
 if __name__ == "__main__":
     DATA_PATH = Path("../data/seed")
-    MODEL_SAVE_PATH = Path("../models/FNN_model.pth")
+    MODEL_SAVE_PATH = Path("../models/LSTM_model.pth")
 
     x = np.load(DATA_PATH / "x.npy")
     y = np.load(DATA_PATH / "y.npy")
     
+    scaler = StandardScaler()
+    
     x_train, x_val, x_test, y_train, y_val, y_test = split_data(x, y)
     
-    scaler = StandardScaler()
-    x_train_scaled = scaler.fit_transform(x_train)
-    x_val_scaled = scaler.fit_transform(x_val)
-    x_test_scaled = scaler.fit_transform(x_test)
+    n, l, f = x_train.shape
+    x_train_flat = x_train.reshape(-1, f)
+    x_train_scaled_flat = scaler.fit_transform(x_train_flat)
+    x_train_scaled = x_train_scaled_flat.reshape(n, l, f)
+
+    N_val, L_val, F_val = x_val.shape
+    x_val_flat = x_val.reshape(-1, F_val)
+    x_val_scaled_flat = scaler.transform(x_val_flat)
+    x_val_scaled = x_val_scaled_flat.reshape(N_val, L_val, F_val)
+    
+    n_test, l_test, f_test = x_test.shape
+    x_test_flat = x_test.reshape(-1, f_test)
+    x_test_scaled_flat = scaler.transform(x_test_flat)
+    x_test_scaled = x_test_scaled_flat.reshape(n_test, l_test, f_test)
     
     train_ds = TensorDataset(
         torch.tensor(x_train_scaled, dtype = torch.float32),
@@ -66,7 +78,7 @@ if __name__ == "__main__":
     trainer.fit(
         train_loader = train_loader,
         val_loader = val_loader,
-        epochs = 250,
+        epochs = 350,
         checkpoint_path = MODEL_SAVE_PATH
     )
 

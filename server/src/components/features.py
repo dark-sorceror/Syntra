@@ -13,7 +13,7 @@ def extract_patterns(user_id: str, db: dict):
             "message": f"No events to extract on for user '{user_id}'"
         }
         
-    habits = {}
+    habits, learned = {}, {}
     
     for i in user_events:
         title = i["event_title"]
@@ -32,8 +32,6 @@ def extract_patterns(user_id: str, db: dict):
         habits[title].days.append(start_date.weekday())
         habits[title].start_times.append(start_date.hour + start_date.minute / 60)
         habits[title].durations.append((end_date - start_date).seconds / 3600)
-        
-    learned = {}
     
     for title, stats in habits.items():
         count = stats.count
@@ -57,5 +55,3 @@ def extract_patterns(user_id: str, db: dict):
         )
         
     db["models"][user_id] = learned
-
-    # Add to database

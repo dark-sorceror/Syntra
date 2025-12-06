@@ -35,6 +35,8 @@ def build_samples():
     
     seqs = np.stack(df_samples["seq_intervals"].to_numpy())
     
+    x_seq = seqs[:, :, np.newaxis]
+    
     hour = df_samples["last_hour"].to_numpy()
     hour_sin, hour_cos = cyclical_encoding(hour, 24.0)
     
@@ -51,7 +53,15 @@ def build_samples():
         duration
     ]).T
     
-    x = np.hstack([seqs, extra])
+    n, l, f_seq = x_seq.shape
+    
+    f_total = f_seq + extra.shape[1]
+    
+    x_3d = np.zeros((n, l, f_total))
+    x_3d[:, :, 0] = seqs
+    x_3d[:, l - 1, 1 :] = extra 
+    x = x_3d
+    
     y = df_samples["label_next_interval"].to_numpy()
 
     np.save(OUTPUT_PATH / "x.npy", x)

@@ -3,7 +3,13 @@ import torch.nn as nn
 import torch.optim as optim
 
 class Trainer:
-    def __init__(self, model: nn.Module, lr = 0.001, scheduler = None, device = None):
+    def __init__(
+            self, 
+            model: nn.Module, 
+            lr = 0.001, 
+            scheduler = None, 
+            device = None
+        ):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.to(self.device)
         self.criterion = nn.MSELoss()
@@ -78,7 +84,7 @@ class Trainer:
                 
                 print(f"Epoch {epoch:3d}/{epochs}: Training Loss: {train_loss:.4f} Validation Loss: {val_loss:.4f} (No improvement)")
                 
-            if epochs_no_improve >= 30:
+            if epochs_no_improve >= 50:
                 print(f"Early stop")
                 
                 self.model.load_state_dict(torch.load(checkpoint_path))
