@@ -4,10 +4,22 @@ import { useState } from "react";
 
 import "./Sidebar.css";
 
+interface NavbarProps {
+    currentPage:
+        | "dashboard"
+        | "calendar"
+        | "tasks"
+        | "collection"
+        | "performance";
+    setCurrentPage: (
+        page: "dashboard" | "calendar" | "tasks" | "collection" | "performance"
+    ) => void;
+}
+
 const menuOptions = [
     {
+        id: "dashboard" as const,
         name: "Dashboard",
-        className: "dashboard",
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -20,8 +32,8 @@ const menuOptions = [
         ),
     },
     {
+        id: "calendar" as const,
         name: "Calendar",
-        className: "calendar",
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -42,9 +54,8 @@ const menuOptions = [
         ),
     },
     {
+        id: "tasks" as const,
         name: "Tasks",
-
-        className: "tasks",
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -57,8 +68,8 @@ const menuOptions = [
         ),
     },
     {
+        id: "collection" as const,
         name: "Collection",
-        className: "collection",
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,8 +82,8 @@ const menuOptions = [
         ),
     },
     {
+        id: "performance" as const,
         name: "Performance",
-        className: "performance",
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +97,7 @@ const menuOptions = [
     },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ setCurrentPage }: NavbarProps) {
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [activeOption, setActiveOption] = useState("Dashboard");
 
@@ -133,10 +144,13 @@ export default function Sidebar() {
                     {menuOptions.map((option) => (
                         <div
                             key={option.name}
-                            className={`option ${option.className} ${
-                                activeOption == option.name ? "active" : ""
+                            className={`option ${option.id} ${
+                                activeOption == option.id ? "active" : ""
                             }`}
-                            onClick={() => handleActiveOption(option.name)}
+                            onClick={() => {
+                                handleActiveOption(option.id);
+                                setCurrentPage(option.id);
+                            }}
                         >
                             <div className="icon">{option.icon}</div>
                             <div className="option-name">{option.name}</div>
