@@ -140,13 +140,16 @@
         right: 0px;
         top: 0px;
         height: 100%;
-        width: 3px;
+        width: 5px;
         content: "";
         background-color: rgb(34, 170, 255);
+        border-radius: 10px;
     }
 }
 
 .option.active {
+    background-color: aliceblue;
+
     .option-name {
         color: rgb(34, 170, 255);
     }

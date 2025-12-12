@@ -3,11 +3,10 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
-    padding: 30px 20px;
+    padding: 40px 20px;
 }
 
 .calendar-wrapper .cw-top {
-    margin-top: 20px;
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -135,11 +134,13 @@
 }
 
 .day {
-    border-top: 1px solid gray;
+    border-top: 1px solid rgb(219, 219, 219);
     padding: 10px 15px;
     font-weight: 600;
     z-index: 0;
     position: relative;
+    color: rgb(139, 139, 139);
+    font-size: 15px;
 }
 
 .day.today {
@@ -173,4 +174,93 @@
     font-size: 12px;
     color: gray;
     margin-top: 5px;
+}
+
+.weekview-area {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.weekview-allday {
+    position: sticky;
+    top: 0;
+    border: 1px solid rgb(226, 226, 226);
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.weekview-allday-grid {
+    padding: 4px 2px;
+    border-right: 1px solid rgb(212, 212, 212);
+    display: flex;
+    align-items: center;
+    z-index: 10;
+}
+
+.weekview-allday-grid-header {
+    font-size: 13px;
+    margin-left: 10px;
+    color: rgb(138, 138, 138);
+}
+
+.weekview-collapsed {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    position: sticky;
+    top: 50px;
+    background-color: white;
+    z-index: 10;
+}
+
+.weekview-collapsed-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: span 7 / span 7;
+    height: 30px;
+}
+
+.weekview-collapsed-button {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    transition: all 0.2s ease-in-out;
+    font-size: 13px;
+    border-radius: 10px;
+    color: rgb(139, 139, 139);
+    
+    &:hover {
+        background-color: rgb(238, 238, 238);
+    }
+}
+
+.weekview-grid {
+    margin-top: 30px;
+    position: relative;
+}
+
+.weekview-grid-grid {
+    display: grid;
+    border-bottom: 1px solid rgb(212, 212, 212);
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    border-bottom-width: 1px;
+    border-color: rgb(212, 212, 212);
+}
+
+.weekview-grid-grid-time {
+    font-size: 13px;
+    color: rgb(138, 138, 138);
+    border-right: 1px solid rgb(212, 212, 212);
+}
+
+.weekview-grid-grid-grid {
+    position: relative;
+    padding-left: 1px;
+    padding-right: 1px;
+    border-right: 1px solid rgb(212, 212, 212);
+    cursor: pointer;
+    user-select: none;
 }

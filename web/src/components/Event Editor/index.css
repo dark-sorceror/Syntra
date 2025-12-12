@@ -162,6 +162,10 @@ form {
     cursor: pointer;
 }
 
+.event-color.active {
+    outline: 3px solid rgb(0, 0, 0);
+}
+
 .holder-area {
     flex-grow: 1;
     width: 100%;

@@ -8,6 +8,7 @@ import { getMonthName } from "@/utils/dateUtils";
 import { calendarEventCrud } from "@/hooks/calendarEventCrud";
 
 import "./index.css";
+import { WeekView } from "./WeekView";
 
 export function Calendar({ events, setEvents }: CalendarProperties) {
     const [currentView, setCurrentView] = useState<"day" | "week" | "month">(
@@ -33,7 +34,17 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
             case "day":
                 return <></>;
             case "week":
-                return <></>;
+                return (
+                    <WeekView
+                        currentDate={currentDate}
+                        setCurrentDate={setCurrentDate}
+                        events={events}
+                        setEvents={setEvents}
+                        onOpenEventEditor={handleOpenEventEditor}
+                        editingEvent={editingEvent}
+                        showEventEditor={showEventEditor}
+                    />
+                );
             case "month":
                 return (
                     <MonthView
@@ -171,7 +182,7 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
                 </div>
             </div>
 
-            <div className="calendar-area">{renderView()}</div>
+            <div className="calendar-area overflow-hidden">{renderView()}</div>
 
             {showEventEditor && (
                 <EventEditor
