@@ -86,7 +86,7 @@ export const generateCalendar = ({
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
-            9,
+            date.getHours(),
             0
         );
 
@@ -94,7 +94,7 @@ export const generateCalendar = ({
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
-            10,
+            date.getHours() + 1,
             0
         );
 

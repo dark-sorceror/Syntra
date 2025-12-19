@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { CalendarEvent, CalendarViewProperties } from "../../types/calendar";
 import { generateCalendar } from "@/hooks/calendarGeneration";
+import {
+    formatEventTime,
+    getWeekdays,
+    slotToTime,
+    timeToSlot,
+    formatSlotTime,
+} from "@/utils/dateUtils";
 
 interface EventLayout {
     event: CalendarEvent;
-    column: number;
-    totalColumns: number;
 }
 
 export const WeekView: React.FC<CalendarViewProperties> = ({
@@ -30,21 +35,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
     const [showNightHours, setShowNightHours] = useState(false);
 
-    const getWeekDays = (date: Date) => {
-        const day = date.getDay();
-        const diff = date.getDate() - day;
-        const sunday = new Date(date.setDate(diff));
-
-        const days = [];
-        for (let i = 0; i < 7; i++) {
-            const weekDay = new Date(sunday);
-            weekDay.setDate(sunday.getDate() + i);
-            days.push(weekDay);
-        }
-        return days;
-    };
-
-    const weekDays = getWeekDays(new Date(currentDate));
+    const weekDays = getWeekdays(new Date(currentDate));
 
     const allSlots = Array.from({ length: 96 }, (_, i) => i);
     const visibleSlots = showNightHours
@@ -53,26 +44,57 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
     const SLOT_HEIGHT = 20;
 
-    const slotToTime = (slot: number) => {
-        const hours = Math.floor(slot / 4);
-        const minutes = (slot % 4) * 15;
-        return { hours, minutes };
+    const getEventLayouts = (day: Date): EventLayout[] => {
+        const dayEvents = events
+            .filter((event) => {
+                if (event.isAllDay) return false;
+                const eventStart = new Date(event.start);
+                return (
+                    eventStart.getDate() === day.getDate() &&
+                    eventStart.getMonth() === day.getMonth() &&
+                    eventStart.getFullYear() === day.getFullYear()
+                );
+            })
+            .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+        const layouts: EventLayout[] = [];
+
+        dayEvents.forEach((event) => {
+            layouts.push({ event });
+        });
+
+        return layouts;
     };
 
-    const timeToSlot = (date: Date) => {
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        return hours * 4 + Math.floor(minutes / 15);
-    };
+    const getEventPosition = (event: CalendarEvent, day: Date) => {
+        const eventStart = new Date(event.start);
+        const eventEnd = new Date(event.end);
 
-    const formatSlotTime = (slot: number) => {
-        const { hours, minutes } = slotToTime(slot);
-        if (minutes !== 0 && minutes !== 30) return ""; // Only show on 30-minute marks
-        if (hours === 0) return `12:${minutes.toString().padStart(2, "0")} AM`;
-        if (hours === 12) return `12:${minutes.toString().padStart(2, "0")} PM`;
-        return hours > 12
-            ? `${hours - 12}:${minutes.toString().padStart(2, "0")} PM`
-            : `${hours}:${minutes.toString().padStart(2, "0")} AM`;
+        if (
+            eventStart.getDate() !== day.getDate() ||
+            eventStart.getMonth() !== day.getMonth() ||
+            eventStart.getFullYear() !== day.getFullYear()
+        ) {
+            return null;
+        }
+
+        if (event.isAllDay) return null;
+
+        const startSlot = timeToSlot(eventStart);
+        const endSlot = timeToSlot(eventEnd);
+
+        const firstVisibleSlot = showNightHours ? 0 : 28;
+        const offsetSlots = startSlot - firstVisibleSlot;
+
+        if (!showNightHours && startSlot < 28) {
+            return null;
+        }
+
+        const duration = endSlot - startSlot;
+        const top = offsetSlots * SLOT_HEIGHT;
+        const height = Math.max(duration * SLOT_HEIGHT, SLOT_HEIGHT);
+
+        return { top, height, startSlot, endSlot };
     };
 
     return (
@@ -139,13 +161,21 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                     <div className="weekview-grid-grid-time">
                                         {showLabel && formatSlotTime(slot)}
                                     </div>
-                                    
+
                                     {weekDays.map((day, dayIndex) => {
                                         return (
                                             <div
                                                 key={dayIndex}
                                                 onDoubleClick={(e) =>
-                                                    handleCreateNewEvent(day, e)
+                                                    handleCreateNewEvent(
+                                                        new Date(
+                                                            day.getFullYear(),
+                                                            day.getMonth(),
+                                                            day.getDate(),
+                                                            hours
+                                                        ),
+                                                        e
+                                                    )
                                                 }
                                                 className={`
                                                     weekview-grid-grid-grid
@@ -153,7 +183,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                         isToday(
                                                             day?.getDate() || 0
                                                         )
-                                                            ? "bg-indigo-50/30"
+                                                            ? "today"
                                                             : ""
                                                     }
                                                 `}
@@ -163,6 +193,56 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                 </div>
                             );
                         })}
+                    <div className="weekview-grid-events">
+                        <div className="weekview-grid-events-area">
+                            <div></div>
+                            {weekDays.map((day, dayIndex) => {
+                                const eventLayouts = getEventLayouts(day);
+
+                                return (
+                                    <div key={dayIndex} className="relative">
+                                        {eventLayouts.map(({ event }) => {
+                                            const position = getEventPosition(
+                                                event,
+                                                day
+                                            );
+
+                                            if (!position) return null;
+
+                                            console.log(event);
+
+                                            return (
+                                                <div
+                                                    key={event.id}
+                                                    className="event-block"
+                                                    style={{
+                                                        top: `${position.top}px`,
+                                                        height: `${position.height}px`,
+                                                        left: "4px",
+                                                        zIndex: 10,
+                                                        backgroundColor:
+                                                            event.color,
+                                                    }}
+                                                >
+                                                    <div className="event-block-title">
+                                                        {event.title}
+                                                    </div>
+
+                                                    {position.height >= 40 && (
+                                                        <div className="event-block-desc">
+                                                            {formatEventTime(
+                                                                event.start
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

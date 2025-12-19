@@ -32,7 +32,7 @@
 .day-switcher,
 .week-switcher,
 .month-switcher {
-    padding: 10px 30px;
+    padding: 8px 15px;
     background-color: #87cefa;
     border-radius: 10px;
     font-weight: 600;
@@ -62,10 +62,10 @@
 
 .bf-switcher .today {
     font-weight: 700;
-    font-size: 20px;
+    font-size: 17px;
     margin: 0px 10px;
     transition: all 0.2s ease-in-out;
-    padding: 10px 15px;
+    padding: 5px 10px;
     border-radius: 10px;
 
     &:hover {
@@ -84,7 +84,7 @@
 .bf-switcher .forward,
 .add {
     transition: all 0.2s ease-in-out;
-    padding: 8px;
+    padding: 4px;
     border-radius: 10px;
 }
 
@@ -98,6 +98,7 @@
 
 .add {
     background-color: lightcoral;
+    cursor: pointer;
 
     &:hover {
         transform: scale(1.05);
@@ -134,12 +135,12 @@
 }
 
 .day {
-    border-top: 1px solid rgb(219, 219, 219);
+    border-top: 1px solid #ebe6e7;
     padding: 10px 15px;
     font-weight: 600;
     z-index: 0;
     position: relative;
-    color: rgb(139, 139, 139);
+    color: rgb(156, 156, 156);
     font-size: 15px;
 }
 
@@ -154,7 +155,7 @@
 }
 
 .day.pm {
-    color: rgba(165, 165, 165, 0.644);
+    color: rgba(192, 192, 192, 0.644);
     font-weight: 400;
 }
 
@@ -162,7 +163,7 @@
     margin-top: 2px;
     z-index: 1;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 13px;
     color: black;
     padding: 2px 10px;
     font-weight: 600;
@@ -212,7 +213,8 @@
     position: sticky;
     top: 50px;
     background-color: white;
-    z-index: 10;
+    z-index: 100;
+    opacity: 80%;
 }
 
 .weekview-collapsed-area {
@@ -231,7 +233,7 @@
     font-size: 13px;
     border-radius: 10px;
     color: rgb(139, 139, 139);
-    
+
     &:hover {
         background-color: rgb(238, 238, 238);
     }
@@ -244,23 +246,58 @@
 
 .weekview-grid-grid {
     display: grid;
-    border-bottom: 1px solid rgb(212, 212, 212);
+    border-bottom: 1px solid #ebe6e7;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     border-bottom-width: 1px;
-    border-color: rgb(212, 212, 212);
+    border-color: #ebe6e7;
 }
 
 .weekview-grid-grid-time {
-    font-size: 13px;
+    font-size: 12px;
     color: rgb(138, 138, 138);
-    border-right: 1px solid rgb(212, 212, 212);
+    border-right: 1px solid #ebe6e7;
+    font-weight: 600;
 }
 
 .weekview-grid-grid-grid {
     position: relative;
     padding-left: 1px;
     padding-right: 1px;
-    border-right: 1px solid rgb(212, 212, 212);
+    border-right: 1px solid #ebe6e7;
     cursor: pointer;
     user-select: none;
+    padding: 10px;
+}
+
+.weekview-grid-grid-grid.today {
+    background-color: rgba(242, 247, 255, 0.692);
+}
+
+.event-block {
+    width: 95%;
+    position: absolute;
+    color: black;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 5px 8px;
+}
+
+.event-block-title {
+    font-size: 13px;
+}
+
+.event-block-desc {
+    font-size: 13px;
+}
+
+.weekview-grid-events {
+    position: absolute;
+    pointer-events: none;
+    inset: 0;
+}
+
+.weekview-grid-events-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
