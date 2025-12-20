@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Calendar } from "@/components/Calendar";
 import { CalendarEvent } from "@/types/calendar";
 import { Tasks } from "./tasks/page";
+import { Dashboard } from "./dashboard/page";
 
 export type CurrentPage =
     | "dashboard"
@@ -30,6 +31,8 @@ export default function AppContent({
 
     const renderPage = () => {
         switch (currentPage) {
+            case "dashboard":
+                return <Dashboard events={events} />;
             case "calendar":
                 return <Calendar events={events} setEvents={setEvents} />;
             case "tasks":

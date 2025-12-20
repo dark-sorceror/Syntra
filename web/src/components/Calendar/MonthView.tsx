@@ -49,32 +49,6 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                     const isCurrentMonth =
                         day && day.getMonth() === currentDate.getMonth();
 
-                    if (
-                        day &&
-                        showEventEditor &&
-                        editingEvent &&
-                        editingEvent.id === ""
-                    ) {
-                        const newEventStartDate = new Date(
-                            editingEvent.start.getFullYear(),
-                            editingEvent.start.getMonth(),
-                            editingEvent.start.getDate()
-                        );
-
-                        const renderingDate = new Date(
-                            day.getFullYear(),
-                            day.getMonth(),
-                            day.getDate()
-                        );
-
-                        if (
-                            renderingDate.getTime() ===
-                            newEventStartDate.getTime()
-                        ) {
-                            dayEvents = [editingEvent, ...dayEvents];
-                        }
-                    }
-
                     return (
                         <div
                             key={index}

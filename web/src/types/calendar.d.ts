@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface Position {
     x: number;
     y: number;
@@ -25,7 +27,7 @@ interface CalendarViewProperties {
 
 interface EventProperties {
     events: CalendarEvent[];
-    setEvents: (events: CalendarEvent[]) => void;
+    setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
 }
 
 export interface CalendarEvent {

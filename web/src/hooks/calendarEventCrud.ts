@@ -15,7 +15,7 @@ export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
     const handleCreateEvent = (newEvent: Omit<CalendarEvent, "id">) => {
         const event: CalendarEvent = {
             ...newEvent,
-            id: Date.now().toString(),
+            id: "",
         };
 
         setEvents([event, ...events]);
@@ -26,11 +26,25 @@ export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
     const handleSaveEvent = (
         event: CalendarEvent | Omit<CalendarEvent, "id">
     ) => {
-        if ("id" in event && event.id !== "") {
-            handleUpdateEvent(event as CalendarEvent);
+        const cleanEvents = events.filter((e) => e.id);
+
+        if ("id" in event && event.id !== "" && event.id) {
+            const updatedList = cleanEvents.map((e) =>
+                e.id === event.id ? (event as CalendarEvent) : e
+            );
+
+            setEvents(updatedList);
         } else {
-            handleCreateEvent(event as Omit<CalendarEvent, "id">);
+            const newRealEvent: CalendarEvent = {
+                ...event,
+                id: Date.now().toString(),
+            };
+
+            setEvents([...cleanEvents, newRealEvent]);
         }
+
+        setShowEventEditor(false);
+        setEditingEvent(null);
     };
 
     const handleUpdateEvent = (updatedEvent: CalendarEvent) => {
@@ -58,20 +72,26 @@ export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
         if (event) {
             setEditingEvent(event);
         } else if (start && end) {
-            setEditingEvent({
+            const placeholder: CalendarEvent = {
                 id: "",
                 title: "New Event",
                 start,
                 end,
                 color: "#87cefa",
                 category: "Work",
-            });
+            };
+
+            setEditingEvent(placeholder);
+            setEvents((prev) => [...prev, placeholder]);
         }
 
         setShowEventEditor(true);
     };
 
     const handleCloseEventEditor = () => {
+        const filtered = events.filter((e) => e.id);
+
+        setEvents(filtered);
         setShowEventEditor(false);
         setEditingEvent(null);
     };

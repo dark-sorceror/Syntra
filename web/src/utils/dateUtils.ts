@@ -70,13 +70,6 @@ export const slotToTime = (slot: number) => {
     return { hours, minutes };
 };
 
-export const timeToSlot = (date: Date) => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-
-    return hours * 4 + Math.floor(minutes / 15);
-};
-
 export const formatSlotTime = (slot: number) => {
     const { hours, minutes } = slotToTime(slot);
 

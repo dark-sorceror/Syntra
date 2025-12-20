@@ -102,19 +102,33 @@ export const generateCalendar = ({
             ? e.currentTarget.lastElementChild?.getBoundingClientRect()
             : e.currentTarget.getBoundingClientRect();
 
+        let x = eventRect
+            ? e.currentTarget.children.length >= 1
+                ? eventRect?.right + 16
+                : eventRect?.right
+            : 0;
+        let y = eventRect
+            ? e.currentTarget.children.length == 1
+                ? eventRect?.top + 25
+                : e.currentTarget.children.length > 1
+                ? eventRect?.top + 25
+                : eventRect?.top + 35
+            : 0;
+
+        if (x + 400 > window.innerWidth) {
+            x = (eventRect?.left || 0) - 400 - 16;
+        }
+
+        if (y + 500 > window.innerHeight) {
+            y = window.innerHeight - 500 - 10;
+        }
+
+        x = Math.max(10, x);
+        y = Math.max(10, y);
+
         const newPosition = {
-            x: eventRect
-                ? e.currentTarget.children.length >= 1
-                    ? eventRect?.right + 16
-                    : eventRect?.right
-                : 0,
-            y: eventRect
-                ? e.currentTarget.children.length == 1
-                    ? eventRect?.top + 25
-                    : e.currentTarget.children.length > 1
-                    ? eventRect?.top + 25
-                    : eventRect?.top + 35
-                : 0,
+            x: x,
+            y: y,
         };
 
         setPosition(newPosition);
@@ -131,9 +145,23 @@ export const generateCalendar = ({
 
         const eventRect = e.currentTarget.getBoundingClientRect();
 
+        let x = eventRect.right + 16;
+        let y = eventRect.top;
+
+        if (x + 400 > window.innerWidth) {
+            x = (eventRect?.left || 0) - 400 - 16;
+        }
+
+        if (y + 500 > window.innerHeight) {
+            y = window.innerHeight - 500 - 10;
+        }
+
+        x = Math.max(10, x);
+        y = Math.max(10, y);
+
         const newPosition = {
-            x: eventRect.right + 16,
-            y: eventRect.top,
+            x: x,
+            y: y,
         };
 
         setPosition(newPosition);

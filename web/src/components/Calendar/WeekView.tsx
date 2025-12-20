@@ -5,7 +5,6 @@ import {
     formatEventTime,
     getWeekdays,
     slotToTime,
-    timeToSlot,
     formatSlotTime,
 } from "@/utils/dateUtils";
 
@@ -80,26 +79,28 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
         if (event.isAllDay) return null;
 
-        const startSlot = timeToSlot(eventStart);
-        const endSlot = timeToSlot(eventEnd);
-
         const firstVisibleSlot = showNightHours ? 0 : 28;
-        const offsetSlots = startSlot - firstVisibleSlot;
 
-        if (!showNightHours && startSlot < 28) {
-            return null;
-        }
+        const startHour = eventStart.getHours();
+        const startMinutes = eventStart.getMinutes();
+        const startTotalSlots = (startHour * 4) + (startMinutes / 15);
 
-        const duration = endSlot - startSlot;
+        const endHour = eventEnd.getHours();
+        const endMinutes = eventEnd.getMinutes();
+        const endTotalSlots = (endHour * 4) + (endMinutes / 15);
+
+        const offsetSlots = startTotalSlots - firstVisibleSlot;
+
         const top = offsetSlots * SLOT_HEIGHT;
-        const height = Math.max(duration * SLOT_HEIGHT, SLOT_HEIGHT);
+        const durationSlots = endTotalSlots - startTotalSlots;
+        const height = Math.max(durationSlots * SLOT_HEIGHT, SLOT_HEIGHT);
 
-        return { top, height, startSlot, endSlot };
+        return { top, height };
     };
 
     return (
         <>
-            <div className="calendar-top">
+            <div className="calendar-top weekview">
                 {weekdayNames.map((day, index) => (
                     <div
                         key={day}
@@ -211,15 +212,32 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
                                             console.log(event);
 
+                                            const isPlaceholder =
+                                                event.id === "" &&
+                                                event.title === "New Event";
+
                                             return (
                                                 <div
-                                                    key={event.id}
-                                                    className="event-block"
+                                                    key={
+                                                        event.id ||
+                                                        "new-event-placeholder"
+                                                    }
+                                                    className={`event-block ${
+                                                        isPlaceholder
+                                                            ? "placeholder-event"
+                                                            : ""
+                                                    } `}
+                                                    onDoubleClick={(e) =>
+                                                        handleEditEvent(
+                                                            event,
+                                                            e
+                                                        )
+                                                    }
                                                     style={{
                                                         top: `${position.top}px`,
                                                         height: `${position.height}px`,
-                                                        left: "4px",
-                                                        zIndex: 10,
+                                                        left: "0",
+                                                        zIndex: 200,
                                                         backgroundColor:
                                                             event.color,
                                                     }}
