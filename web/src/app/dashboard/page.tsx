@@ -154,13 +154,14 @@ export function Dashboard({ events }: DashboardProps) {
                                     className="dashboard-events-today-event"
                                 >
                                     <div
-                                        className={`w-1 h-12 ${event.color} rounded-full`}
+                                        className="dashboard-events-today-event-color"
+                                        style={{ backgroundColor: event.color }}
                                     ></div>
-                                    <div className="flex-1">
-                                        <h4 className="text-gray-900 mb-1">
+                                    <div className="dashboard-events-today-event-desc">
+                                        <h4 className="dashboard-events-today-event-title">
                                             {event.title}
                                         </h4>
-                                        <p className="text-gray-600">
+                                        <p className="dashboard-events-today-event-time">
                                             {formatEventTime(event.start)} -{" "}
                                             {formatEventTime(event.end)}
                                         </p>
@@ -176,13 +177,12 @@ export function Dashboard({ events }: DashboardProps) {
                             ))}
                         </div>
                     ) : (
-                        <div className="dashboard-events-today">
+                        <div className="dashboard-events-today default">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 id="Layer_1"
                                 data-name="Layer 1"
                                 viewBox="0 0 24 24"
-                                style={{ width: "40px" }}
                             >
                                 <path d="M22.208,5.821c-.289-1.155-1.212-2.036-2.354-2.245-.333-.061-.668-.117-1.005-.17v-.932c0-.552-.448-1-1-1s-1,.448-1,1v.667c-3.193-.345-6.504-.345-9.697,0v-.667c0-.552-.448-1-1-1s-1,.448-1,1v.932c-.337,.053-.672,.109-1.005,.17-1.141,.208-2.065,1.089-2.354,2.244-1.062,4.246-1.062,9.521,0,13.768,.289,1.155,1.213,2.036,2.354,2.244,2.532,.462,5.193,.694,7.854,.694s5.321-.231,7.854-.694c1.141-.208,2.065-1.089,2.354-2.244,1.062-4.246,1.062-9.521,0-13.767Zm-17.702-.277c2.417-.441,4.955-.662,7.494-.662s5.078,.221,7.494,.662c.371,.067,.674,.367,.773,.762,.086,.345,.164,.699,.235,1.06H3.498c.071-.361,.149-.715,.235-1.06,.099-.395,.402-.694,.773-.762Zm15.761,13.559c-.099,.395-.402,.694-.773,.762-4.833,.883-10.155,.883-14.988,0-.371-.067-.674-.367-.773-.762-.732-2.925-.912-6.494-.543-9.737H20.81c.37,3.244,.189,6.812-.543,9.737Z" />
                                 <g>
@@ -234,15 +234,21 @@ export function Dashboard({ events }: DashboardProps) {
                             {upcomingEvents.slice(0, 6).map((event) => (
                                 <div
                                     key={event.id}
-                                    className={`${event.color} text-white p-4 rounded-lg`}
+                                    className="dashboard-events-up-event"
                                 >
-                                    <h4 className="mb-2">{event.title}</h4>
-                                    <p className="text-sm opacity-90 mb-1">
+                                    <div
+                                        className="dashboard-events-up-event-color"
+                                        style={{ backgroundColor: event.color }}
+                                    ></div>
+                                    <h4 className="dashboard-events-up-event-title">
+                                        {event.title}
+                                    </h4>
+                                    <p className="dashboard-events-up-event-date">
                                         {monthNames[event.start.getMonth()]}{" "}
                                         {event.start.getDate()},{" "}
                                         {event.start.getFullYear()}
                                     </p>
-                                    <p className="text-sm opacity-90">
+                                    <p className="dashboard-events-up-event-time">
                                         {formatEventTime(event.start)} -{" "}
                                         {formatEventTime(event.end)}
                                     </p>
@@ -250,13 +256,12 @@ export function Dashboard({ events }: DashboardProps) {
                             ))}
                         </div>
                     ) : (
-                        <div className="dashboard-events-up">
+                        <div className="dashboard-events-up default">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 id="Layer_1"
                                 data-name="Layer 1"
                                 viewBox="0 0 24 24"
-                                style={{ width: "40px" }}
                             >
                                 <path d="M13,11.697V6c0-.552-.447-1-1-1s-1,.448-1,1v6c0,.197,.059,.391,.168,.555l2,3c.517,.679,1.216,.391,1.387,.277,.46-.306,.584-.927,.277-1.387l-1.832-2.748Z" />
                                 <path d="M11.994,1C4.929,1.044,1,5.016,1,11.982s3.932,11.018,11.006,11.018c7.162,0,10.861-3.737,10.994-11.017-.122-7.037-4.026-10.938-11.006-10.983Zm.012,20c-6.026-.035-8.888-2.895-9.006-9,.113-6.019,3.059-8.963,8.994-9,5.873,.038,8.903,3.072,9.006,8.981-.112,6.117-2.974,8.983-8.994,9.019Z" />

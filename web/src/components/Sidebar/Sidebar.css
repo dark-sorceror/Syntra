@@ -4,7 +4,7 @@
     position: absolute;
     right: -19px;
     background-color: white;
-    border: 3px solid rgba(226, 226, 226, 0.644);
+    border: 2px solid #ebe6e7;
     border-radius: 10px;
     padding: 2px;
     top: calc(100vh / 2);
@@ -172,7 +172,7 @@
 }
 
 .option:hover {
-    background-color: rgba(226, 226, 226, 0.507);
+    background-color: oklch(94.816% 0.00354 248.555);
     cursor: pointer;
 }
 

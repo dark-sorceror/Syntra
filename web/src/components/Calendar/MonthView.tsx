@@ -1,5 +1,9 @@
+import { useState } from "react";
+
 import { CalendarViewProperties } from "@/types/calendar";
 import { generateCalendar } from "@/hooks/calendarGeneration";
+
+import { CalendarEvent } from "@/types/calendar";
 
 export const MonthView: React.FC<CalendarViewProperties> = ({
     currentDate,
@@ -17,6 +21,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
         handleCreateNewEvent,
         handleEditEvent,
         days,
+        isEventStart,
     } = generateCalendar({
         currentDate,
         setCurrentDate,
@@ -26,6 +31,51 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
         editingEvent,
         showEventEditor,
     });
+
+    const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(
+        null
+    );
+    const [dragStartDay, setDragStartDay] = useState<number | null>(null);
+
+    const handleEventDragStart = (
+        event: CalendarEvent,
+        day: number,
+        e: React.DragEvent
+    ) => {
+        e.stopPropagation();
+        setDraggedEvent(event);
+        setDragStartDay(day);
+    };
+
+    const handleDayDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+    };
+
+    const handleDayDrop = (day: number, e: React.DragEvent) => {
+        e.preventDefault();
+
+        if (draggedEvent && dragStartDay !== null) {
+            const dayDifference = day - dragStartDay;
+
+            const newStart = new Date(draggedEvent.start);
+            newStart.setDate(newStart.getDate() + dayDifference);
+
+            const newEnd = new Date(draggedEvent.end);
+            newEnd.setDate(newEnd.getDate() + dayDifference);
+
+            const updatedEvent = {
+                ...draggedEvent,
+                start: newStart,
+                end: newEnd,
+            };
+
+            setEvents(
+                events.map((e) => (e.id === draggedEvent.id ? updatedEvent : e))
+            );
+            setDraggedEvent(null);
+            setDragStartDay(null);
+        }
+    };
 
     return (
         <>
@@ -55,6 +105,12 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                             onDoubleClick={(e) =>
                                 day && handleCreateNewEvent(day, e)
                             }
+                            onDragOver={day ? handleDayDragOver : undefined}
+                            onDrop={
+                                day
+                                    ? (e) => handleDayDrop(day.getDate(), e)
+                                    : undefined
+                            }
                             className={`day ${
                                 isToday(day?.getDate() || 0) && isCurrentMonth
                                     ? "today"
@@ -69,13 +125,29 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                     event.id === "" &&
                                     event.title === "New Event";
 
+                                const isStart = isEventStart(
+                                    event,
+                                    day?.getDate() || 0
+                                );
+
                                 return (
                                     <div
                                         key={
                                             event.id || "new-event-placeholder"
                                         }
+                                        draggable={isStart}
                                         onDoubleClick={(e) =>
                                             handleEditEvent(event, e)
+                                        }
+                                        onDragStart={
+                                            isStart
+                                                ? (e) =>
+                                                      handleEventDragStart(
+                                                          event,
+                                                          day?.getDate() || 0,
+                                                          e
+                                                      )
+                                                : undefined
                                         }
                                         className={`event ${
                                             isPlaceholder

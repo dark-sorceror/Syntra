@@ -5,12 +5,12 @@ export interface Position {
     y: number;
 }
 
-interface CalendarProperties {
+export interface CalendarProperties {
     events: CalendarEvent[];
     setEvents: (events: CalendarEvent[]) => void;
 }
 
-interface CalendarViewProperties {
+export interface CalendarViewProperties {
     currentDate: Date;
     setCurrentDate: (date: Date) => void;
     events: CalendarEvent[];
@@ -25,7 +25,7 @@ interface CalendarViewProperties {
     showEventEditor: boolean;
 }
 
-interface EventProperties {
+export interface EventProperties {
     events: CalendarEvent[];
     setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
 }

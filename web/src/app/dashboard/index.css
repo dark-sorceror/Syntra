@@ -2,6 +2,8 @@
     width: 100%;
     height: 100%;
     padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
 }
 
 .dashboard-title {
@@ -74,7 +76,7 @@
 
 .dashboard-stat-stat {
     font-weight: 700;
-    color: rgba(0, 0, 0, 0.664);
+    color: rgba(0, 0, 0, 0.589);
     font-size: 25px;
     margin-top: 20px;
 }
@@ -87,8 +89,10 @@
 .dashboard-bottom {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 0.8fr;
     column-gap: 16px;
     margin-top: 20px;
+    height: 100%;
 }
 
 .dashboard-bottom-today {
@@ -97,6 +101,8 @@
     border: 1px solid #ebe6e7;
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     padding: 25px;
+    display: flex;
+    flex-direction: column;
 }
 
 .dashboard-bottom-today-title {
@@ -113,8 +119,22 @@
 
 .dashboard-events-today {
     display: flex;
+}
+
+.dashboard-events-today.default {
+    display: flex;
     align-items: center;
     flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    opacity: 15%;
+    font-weight: 700;
+    font-size: 15px;
+
+    svg {
+        margin-bottom: 15px;
+        width: 60px;
+    }
 }
 
 .dashboard-bottom-up {
@@ -124,6 +144,8 @@
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     padding: 25px;
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .dashboard-bottom-up-title {
@@ -133,8 +155,39 @@
 
 .dashboard-events-up {
     display: flex;
+    height: 100%;
+}
+
+.dashboard-events-up.default {
+    display: flex;
     align-items: center;
     flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    opacity: 15%;
+    font-weight: 700;
+    font-size: 15px;
+
+    svg {
+        margin-bottom: 10px;
+        width: 60px;
+    }
+}
+
+.dashboard-events-up-event {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 15px;
+    background-color: oklch(0.985 0.002 247.839);
+    justify-content: center;
+}
+
+.dashboard-events-up-event-color {
+    width: 40%;
+    height: 5px;
+    border-radius: 20px;
+    margin-bottom: 10px;
 }
 
 .dashboard-bottom-today-cat-desc {
@@ -164,4 +217,35 @@
     margin-bottom: 10px;
     background-color: #ebe6e7;
     border-radius: 13px;
+    width: 250px;
+    padding: 15px;
+    background-color: oklch(0.985 0.002 247.839);
+}
+
+.dashboard-events-today-event-color {
+    width: 5px;
+    height: 100%;
+    border-radius: 20px;
+    margin-right: 20px;
+}
+
+.dashboard-events-today-event-desc {
+    flex: 1;
+}
+
+.dashboard-events-today-event-title,
+.dashboard-events-up-event-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.dashboard-events-up-event-date {
+    font-size: 14px;
+}
+
+.dashboard-events-today-event-time,
+.dashboard-events-up-event-time {
+    opacity: 60%;
+    font-size: 13px;
 }
