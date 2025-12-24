@@ -36,6 +36,10 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
         null
     );
     const [dragStartDay, setDragStartDay] = useState<number | null>(null);
+    const [resizingEvent, setResizingEvent] = useState<{
+        event: CalendarEvent;
+        edge: "left" | "right";
+    } | null>(null);
 
     const handleEventDragStart = (
         event: CalendarEvent,
@@ -58,9 +62,9 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
             const dayDifference = day - dragStartDay;
 
             const newStart = new Date(draggedEvent.start);
-            newStart.setDate(newStart.getDate() + dayDifference);
-
             const newEnd = new Date(draggedEvent.end);
+
+            newStart.setDate(newStart.getDate() + dayDifference);
             newEnd.setDate(newEnd.getDate() + dayDifference);
 
             const updatedEvent = {
@@ -75,6 +79,77 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
             setDraggedEvent(null);
             setDragStartDay(null);
         }
+    };
+
+    const handleResizeStart = (
+        event: CalendarEvent,
+        edge: "left" | "right",
+        e: React.MouseEvent
+    ) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        setResizingEvent({ event, edge });
+    };
+
+    const handleDayMouseEnter = (day: number) => {
+        if (resizingEvent) {
+            const { event, edge } = resizingEvent;
+            const eventStart = new Date(event.start);
+            const eventEnd = new Date(event.end);
+
+            const targetDate = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                day
+            );
+
+            if (edge === "left") {
+                if (targetDate <= eventEnd) {
+                    const newStart = new Date(targetDate);
+
+                    newStart.setHours(
+                        eventStart.getHours(),
+                        eventStart.getMinutes(),
+                        0,
+                        0
+                    );
+
+                    const updatedEvent = { ...event, start: newStart };
+
+                    setEvents(
+                        events.map((e) =>
+                            e.id === event.id ? updatedEvent : e
+                        )
+                    );
+                    setResizingEvent({ event: updatedEvent, edge });
+                }
+            } else {
+                if (targetDate >= eventStart) {
+                    const newEnd = new Date(targetDate);
+
+                    newEnd.setHours(
+                        eventEnd.getHours(),
+                        eventEnd.getMinutes(),
+                        0,
+                        0
+                    );
+
+                    const updatedEvent = { ...event, end: newEnd };
+
+                    setEvents(
+                        events.map((e) =>
+                            e.id === event.id ? updatedEvent : e
+                        )
+                    );
+                    setResizingEvent({ event: updatedEvent, edge });
+                }
+            }
+        }
+    };
+
+    const handleMouseUp = () => {
+        setResizingEvent(null);
     };
 
     return (
@@ -92,7 +167,10 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                 ))}
             </div>
 
-            <div className={`calendar-main ${days.length > 35 ? "extra" : ""}`}>
+            <div
+                className={`calendar-main ${days.length > 35 ? "extra" : ""}`}
+                onMouseUp={handleMouseUp}
+            >
                 {days.map((day, index) => {
                     let dayEvents = day ? filterEventsForDay(day) : [];
 
@@ -110,6 +188,9 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                 day
                                     ? (e) => handleDayDrop(day.getDate(), e)
                                     : undefined
+                            }
+                            onMouseEnter={() =>
+                                day && handleDayMouseEnter(day.getDate())
                             }
                             className={`day ${
                                 isToday(day?.getDate() || 0) && isCurrentMonth
@@ -156,7 +237,31 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                         }`}
                                         style={{ backgroundColor: event.color }}
                                     >
+                                        {isStart && !event.isAllDay && (
+                                            <div
+                                                className="resize-handle absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/30 opacity-0 group-hover:opacity-100"
+                                                onMouseDown={(e) =>
+                                                    handleResizeStart(
+                                                        event,
+                                                        "left",
+                                                        e
+                                                    )
+                                                }
+                                            ></div>
+                                        )}
                                         {event.title}
+                                        {!event.isAllDay && (
+                                            <div
+                                                className="resize-handle absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/30 opacity-0 group-hover:opacity-100"
+                                                onMouseDown={(e) =>
+                                                    handleResizeStart(
+                                                        event,
+                                                        "right",
+                                                        e
+                                                    )
+                                                }
+                                            ></div>
+                                        )}
                                     </div>
                                 );
                             })}

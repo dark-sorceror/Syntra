@@ -34,6 +34,27 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
     const [showNightHours, setShowNightHours] = useState(false);
 
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState<{
+        day: Date;
+        slot: number;
+    } | null>(null);
+    const [dragEnd, setDragEnd] = useState<{ day: Date; slot: number } | null>(
+        null
+    );
+    const [resizingEvent, setResizingEvent] = useState<{
+        event: CalendarEvent;
+        edge: "top" | "bottom";
+    } | null>(null);
+
+    const [draggingEvent, setDraggingEvent] = useState<CalendarEvent | null>(
+        null
+    );
+    const [dragOffset, setDragOffset] = useState<{
+        day: number;
+        slot: number;
+    } | null>(null);
+
     const weekDays = getWeekdays(new Date(currentDate));
 
     const allSlots = Array.from({ length: 96 }, (_, i) => i);
@@ -83,11 +104,11 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
         const startHour = eventStart.getHours();
         const startMinutes = eventStart.getMinutes();
-        const startTotalSlots = (startHour * 4) + (startMinutes / 15);
+        const startTotalSlots = startHour * 4 + startMinutes / 15;
 
         const endHour = eventEnd.getHours();
         const endMinutes = eventEnd.getMinutes();
-        const endTotalSlots = (endHour * 4) + (endMinutes / 15);
+        const endTotalSlots = endHour * 4 + endMinutes / 15;
 
         const offsetSlots = startTotalSlots - firstVisibleSlot;
 
@@ -96,6 +117,178 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
         const height = Math.max(durationSlots * SLOT_HEIGHT, SLOT_HEIGHT);
 
         return { top, height };
+    };
+
+    const handleMouseDown = (day: Date, slot: number, e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).closest(".event-block")) {
+            return;
+        }
+
+        setIsDragging(true);
+        setDragStart({ day, slot });
+        setDragEnd({ day, slot });
+    };
+
+    const handleMouseEnter = (day: Date, slot: number) => {
+        if (isDragging && dragStart) {
+            if (day.getDate() === dragStart.day.getDate()) {
+                setDragEnd({ day, slot });
+            }
+        } else if (resizingEvent) {
+            handleResize(day, slot);
+        } else if (draggingEvent && dragOffset) {
+            handleEventDrag(day, slot);
+        }
+    };
+
+    const handleMouseUp = () => {
+        if (isDragging && dragStart && dragEnd) {
+            const startSlot = Math.min(dragStart.slot, dragEnd.slot);
+            const endSlot = Math.max(dragStart.slot, dragEnd.slot) + 1;
+
+            const { hours: startHours, minutes: startMinutes } =
+                slotToTime(startSlot);
+            const { hours: endHours, minutes: endMinutes } =
+                slotToTime(endSlot);
+
+            const start = new Date(dragStart.day);
+
+            start.setHours(startHours, startMinutes, 0, 0);
+
+            const end = new Date(dragStart.day);
+
+            end.setHours(endHours, endMinutes, 0, 0);
+
+            onOpenEventEditor(undefined, undefined, start, end);
+        }
+
+        setIsDragging(false);
+        setDragStart(null);
+        setDragEnd(null);
+        setResizingEvent(null);
+        setDraggingEvent(null);
+        setDragOffset(null);
+    };
+
+    const timeToSlot = (date: Date) => {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+
+        return hours * 4 + Math.floor(minutes / 15);
+    };
+
+    const handleEventDragStart = (
+        event: CalendarEvent,
+        day: Date,
+        slot: number,
+        e: React.MouseEvent
+    ) => {
+        e.stopPropagation();
+        const eventStart = new Date(event.start);
+        const eventStartSlot = timeToSlot(eventStart);
+
+        const dayIndex = weekDays.findIndex(
+            (d) =>
+                d.getDate() === day.getDate() &&
+                d.getMonth() === day.getMonth() &&
+                d.getFullYear() === day.getFullYear()
+        );
+
+        setDraggingEvent(event);
+        setDragOffset({
+            day: dayIndex,
+            slot: eventStartSlot,
+        });
+    };
+
+    const handleEventDrag = (day: Date, slot: number) => {
+        if (!draggingEvent || !dragOffset) return;
+
+        const eventStart = new Date(draggingEvent.start);
+        const eventEnd = new Date(draggingEvent.end);
+        const durationMs = eventEnd.getTime() - eventStart.getTime();
+
+        const { hours, minutes } = slotToTime(slot);
+        const newStart = new Date(day);
+
+        newStart.setHours(hours, minutes, 0, 0);
+
+        const newEnd = new Date(newStart.getTime() + durationMs);
+
+        const updatedEvent = {
+            ...draggingEvent,
+            start: newStart,
+            end: newEnd,
+        };
+
+        setEvents(
+            events.map((e) => (e.id === draggingEvent.id ? updatedEvent : e))
+        );
+        setDraggingEvent(updatedEvent);
+    };
+
+    const handleResizeStart = (
+        event: CalendarEvent,
+        edge: "top" | "bottom",
+        e: React.MouseEvent
+    ) => {
+        e.stopPropagation();
+
+        setResizingEvent({ event, edge });
+    };
+
+    const handleResize = (day: Date, slot: number) => {
+        if (!resizingEvent) return;
+
+        const { event, edge } = resizingEvent;
+        const eventStart = new Date(event.start);
+        const eventDay = new Date(
+            eventStart.getFullYear(),
+            eventStart.getMonth(),
+            eventStart.getDate()
+        );
+        const targetDay = new Date(
+            day.getFullYear(),
+            day.getMonth(),
+            day.getDate()
+        );
+
+        if (eventDay.getTime() !== targetDay.getTime()) return;
+
+        const { hours, minutes } = slotToTime(slot);
+        const newTime = new Date(day);
+
+        newTime.setHours(hours, minutes, 0, 0);
+
+        if (edge === "top") {
+            if (newTime < event.end) {
+                const updatedEvent = { ...event, start: newTime };
+
+                setEvents(
+                    events.map((e) => (e.id === event.id ? updatedEvent : e))
+                );
+                setResizingEvent({ event: updatedEvent, edge });
+            }
+        } else {
+            if (newTime > event.start) {
+                const updatedEvent = { ...event, end: newTime };
+
+                setEvents(
+                    events.map((e) => (e.id === event.id ? updatedEvent : e))
+                );
+                setResizingEvent({ event: updatedEvent, edge });
+            }
+        }
+    };
+
+    const isCellInDragSelection = (day: Date, slot: number) => {
+        if (!isDragging || !dragStart || !dragEnd) return false;
+        if (day.getDate() !== dragStart.day.getDate()) return false;
+
+        const minSlot = Math.min(dragStart.slot, dragEnd.slot);
+        const maxSlot = Math.max(dragStart.slot, dragEnd.slot);
+
+        return slot >= minSlot && slot <= maxSlot;
     };
 
     return (
@@ -144,7 +337,11 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                     </div>
                 )}
 
-                <div className="weekview-grid">
+                <div
+                    className="weekview-grid"
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                >
                     {visibleSlots
                         .filter((slot) => slot % 2 === 0)
                         .map((slot) => {
@@ -178,6 +375,16 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                         e
                                                     )
                                                 }
+                                                onMouseDown={(e) =>
+                                                    handleMouseDown(
+                                                        day,
+                                                        slot,
+                                                        e
+                                                    )
+                                                }
+                                                onMouseEnter={() =>
+                                                    handleMouseEnter(day, slot)
+                                                }
                                                 className={`
                                                     weekview-grid-grid-grid
                                                     ${
@@ -210,8 +417,6 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
                                             if (!position) return null;
 
-                                            console.log(event);
-
                                             const isPlaceholder =
                                                 event.id === "" &&
                                                 event.title === "New Event";
@@ -233,6 +438,22 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             e
                                                         )
                                                     }
+                                                    onMouseDown={(e) => {
+                                                        const target =
+                                                            e.target as HTMLElement;
+                                                        if (
+                                                            !target.classList.contains(
+                                                                "resize-handle"
+                                                            )
+                                                        ) {
+                                                            handleEventDragStart(
+                                                                event,
+                                                                day,
+                                                                position.startSlot,
+                                                                e
+                                                            );
+                                                        }
+                                                    }}
                                                     style={{
                                                         top: `${position.top}px`,
                                                         height: `${position.height}px`,
@@ -242,6 +463,16 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             event.color,
                                                     }}
                                                 >
+                                                    <div
+                                                        className="resize-handle absolute top-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-white/30"
+                                                        onMouseDown={(e) =>
+                                                            handleResizeStart(
+                                                                event,
+                                                                "top",
+                                                                e
+                                                            )
+                                                        }
+                                                    ></div>
                                                     <div className="event-block-title">
                                                         {event.title}
                                                     </div>
@@ -253,6 +484,16 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             )}
                                                         </div>
                                                     )}
+                                                    <div
+                                                        className="resize-handle absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-white/30"
+                                                        onMouseDown={(e) =>
+                                                            handleResizeStart(
+                                                                event,
+                                                                "bottom",
+                                                                e
+                                                            )
+                                                        }
+                                                    ></div>
                                                 </div>
                                             );
                                         })}
