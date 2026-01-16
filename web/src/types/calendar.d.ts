@@ -7,14 +7,14 @@ export interface Position {
 
 export interface CalendarProperties {
     events: CalendarEvent[];
-    setEvents: (events: CalendarEvent[]) => void;
+    setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
 }
 
 export interface CalendarViewProperties {
     currentDate: Date;
     setCurrentDate: (date: Date) => void;
     events: CalendarEvent[];
-    setEvents: (events: CalendarEvent[]) => void;
+    setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
     onOpenEventEditor: (
         position?: Position,
         event?: CalendarEvent,

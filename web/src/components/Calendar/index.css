@@ -294,9 +294,17 @@
     position: absolute;
     color: black;
     border-radius: 8px;
-    cursor: pointer;
     padding: 5px 8px;
-    z-index: 200;
+    z-index: 2000;
+    user-select: none;
+    cursor: move;
+    transition: 0.2s all ease-in-out;
+    overflow: hidden;
+    pointer-events: all;
+
+    &:hover {
+        opacity: 90%;
+    }
 }
 
 .event-block-title {
@@ -312,11 +320,13 @@
     position: absolute;
     pointer-events: none;
     inset: 0;
+    overflow: hidden;
 }
 
 .weekview-grid-events-area {
     display: grid;
     grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    height: 100%;
 }
 
 .calendar-top.weekview {

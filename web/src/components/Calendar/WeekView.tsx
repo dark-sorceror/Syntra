@@ -116,7 +116,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
         const durationSlots = endTotalSlots - startTotalSlots;
         const height = Math.max(durationSlots * SLOT_HEIGHT, SLOT_HEIGHT);
 
-        return { top, height };
+        return { top, height, startTotalSlots, endTotalSlots };
     };
 
     const handleMouseDown = (day: Date, slot: number, e: React.MouseEvent) => {
@@ -158,8 +158,6 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
             const end = new Date(dragStart.day);
 
             end.setHours(endHours, endMinutes, 0, 0);
-
-            onOpenEventEditor(undefined, undefined, start, end);
         }
 
         setIsDragging(false);
@@ -361,6 +359,9 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                     </div>
 
                                     {weekDays.map((day, dayIndex) => {
+                                        const isSelected =
+                                            isCellInDragSelection(day, slot);
+
                                         return (
                                             <div
                                                 key={dayIndex}
@@ -449,7 +450,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             handleEventDragStart(
                                                                 event,
                                                                 day,
-                                                                position.startSlot,
+                                                                position.startTotalSlots,
                                                                 e
                                                             );
                                                         }
@@ -458,7 +459,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                         top: `${position.top}px`,
                                                         height: `${position.height}px`,
                                                         left: "0",
-                                                        zIndex: 200,
+                                                        zIndex: 2000,
                                                         backgroundColor:
                                                             event.color,
                                                     }}

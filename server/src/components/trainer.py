@@ -1,30 +1,30 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 
 class Trainer:
     def __init__(
-            self, 
-            model: nn.Module, 
-            lr = 0.001, 
-            scheduler = None, 
-            device = None
-        ):
+        self, 
+        model: nn.Module, 
+        learning_rate: float = 0.001, 
+        device: bool = None
+    ):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.to(self.device)
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(
             model.parameters(), 
-            lr = lr,
+            lr = learning_rate,
             weight_decay = 0.0001
         )
-        self.scheduler = scheduler
+
         self.history = {
             'train_loss': [], 
             'val_loss': []
         }
         
-    def train(self, loader):
+    def train(self, loader: DataLoader):
         self.model.train()
         
         total_loss = 0
@@ -33,11 +33,10 @@ class Trainer:
             x_batch = x_batch.to(self.device)
             y_batch = y_batch.to(self.device)
             
-            self.optimizer.zero_grad()
-            
             pred = self.model(x_batch)
             loss = self.criterion(pred, y_batch)
             
+            self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
             
@@ -45,24 +44,30 @@ class Trainer:
             
         return total_loss / len(loader)
     
-    def validate(self, loader):
+    @torch.no_grad()
+    def validate(self, loader: DataLoader):
         self.model.eval()
         
         total_loss = 0
         
-        with torch.no_grad():
-            for x_batch, y_batch in loader:
-                x_batch = x_batch.to(self.device)
-                y_batch = y_batch.to(self.device)
-                
-                pred = self.model(x_batch)
-                loss = self.criterion(pred, y_batch)
-                
-                total_loss += loss.item()
+        for x_batch, y_batch in loader:
+            x_batch = x_batch.to(self.device)
+            y_batch = y_batch.to(self.device)
+            
+            pred = self.model(x_batch)
+            loss = self.criterion(pred, y_batch)
+            
+            total_loss += loss.item()
                 
         return total_loss / len(loader)
     
-    def fit(self, train_loader, val_loader, epochs: int, checkpoint_path = None):
+    def fit(
+        self, 
+        train_loader: DataLoader, 
+        val_loader: DataLoader, 
+        epochs: int, 
+        checkpoint_path: str = None
+    ):
         best_val_loss = float("inf")
         
         for epoch in range(epochs):
@@ -90,8 +95,5 @@ class Trainer:
                 self.model.load_state_dict(torch.load(checkpoint_path))
                 
                 break
-                
-            if self.scheduler is not None and isinstance(self.scheduler, optim.lr_scheduler.ReduceLROnPlateau):
-                self.scheduler.step(val_loss)
                 
         print(f"Training finished. Best Validation Loss: {best_val_loss:.4f}")
