@@ -1,27 +1,26 @@
 {
-    "name": "test2",
-    "version": "1.0.0",
-    "main": "dist/index.js",
+    "name": "src",
+    "version": "0.1.0",
+    "private": true,
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "npx electron .",
-        "build": "tsc && npx electron-builder --config ./build/builder-win-config.yaml",
-        "dev": "nodemon --watch . --ext ts,tsx,json,html,css --exec \"tsc && electron ./dist/index.js --inspect\""
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "description": "",
-    "devDependencies": {
-        "@types/electron": "^1.4.38",
-        "@types/express": "^5.0.5",
-        "@types/node": "^24.10.0",
-        "electron": "^39.1.2",
-        "nodemon": "^3.1.10",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.9.3"
+        "dev": "next --webpack",
+        "build": "next build --webpack",
+        "start": "next start --webpack",
+        "lint": "eslint"
     },
     "dependencies": {
-        "express": "^5.1.0"
+        "react": "19.2.0",
+        "react-dom": "19.2.0",
+        "next": "16.0.1"
+    },
+    "devDependencies": {
+        "typescript": "^5",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "@tailwindcss/postcss": "^4",
+        "tailwindcss": "^4",
+        "eslint": "^9",
+        "eslint-config-next": "16.0.1"
     }
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import AppContent from "./AppContent";
 
-import Sidebar from "@/components/Sidebar/Sidebar";
+import Sidebar from "@/components/Sidebar";
 import AIAgent from "@/components/AI Agent";
 
 export default function App() {

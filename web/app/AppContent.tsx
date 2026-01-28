@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Calendar } from "@/components/Calendar";
 import { CalendarEvent } from "@/types/calendar";
-import { Tasks } from "./tasks/page";
-import { Dashboard } from "./dashboard/page";
+import { Tasks } from "./tasks";
+import { Dashboard } from "./dashboard";
 
 export type CurrentPage =
     | "dashboard"

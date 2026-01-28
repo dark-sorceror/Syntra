@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import "./Sidebar.css";
+import "./index.css";
 
 interface NavbarProps {
     currentPage:

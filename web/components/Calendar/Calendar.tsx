@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { MonthView } from "./MonthView";
+import { WeekView } from "./WeekView";
 import { EventEditor } from "../Event Editor";
 
 import { CalendarProperties } from "@/types/calendar";
@@ -8,11 +9,11 @@ import { getMonthName } from "@/utils/dateUtils";
 import { calendarEventCrud } from "@/hooks/calendarEventCrud";
 
 import "./index.css";
-import { WeekView } from "./WeekView";
+import Switcher from "./Switcher";
 
 export function Calendar({ events, setEvents }: CalendarProperties) {
     const [currentView, setCurrentView] = useState<"day" | "week" | "month">(
-        "month"
+        "month",
     );
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -108,35 +109,10 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
         <div className="calendar-wrapper">
             <div className="cw-top">
                 <div className="month-year">
-                    {getMonthName(currentDate.getMonth())}{" "}
-                    <span>{currentDate.getFullYear()}</span>
+                    {getMonthName(currentDate.getMonth())}
+                    <span>{" "}{currentDate.getFullYear()}</span>
                 </div>
-                <div className="dwm-switcher">
-                    <div
-                        className={`day-switcher ${
-                            currentView === "day" ? "active" : ""
-                        }`}
-                        onClick={() => setCurrentView("day")}
-                    >
-                        Day
-                    </div>
-                    <div
-                        className={`week-switcher ${
-                            currentView === "week" ? "active" : ""
-                        }`}
-                        onClick={() => setCurrentView("week")}
-                    >
-                        Week
-                    </div>
-                    <div
-                        className={`month-switcher ${
-                            currentView === "month" ? "active" : ""
-                        }`}
-                        onClick={() => setCurrentView("month")}
-                    >
-                        Month
-                    </div>
-                </div>
+                <Switcher currentView={currentView} onChange={setCurrentView} />
                 <div className="bf-switcher">
                     <div onClick={goPrevView} className="back">
                         <svg

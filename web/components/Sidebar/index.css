@@ -4,7 +4,7 @@
     position: absolute;
     right: -19px;
     background-color: white;
-    border: 2px solid #ebe6e7;
+    border: 1px solid #ebe6e7;
     border-radius: 10px;
     padding: 2px;
     top: calc(100vh / 2);
@@ -21,9 +21,10 @@
 
 .option-name,
 .name,
-.sign-out,
 .account-details {
-    transition: margin 0.3s ease-in-out, opacity 0.3s ease-in-out,
+    transition:
+        margin 0.3s ease-in-out,
+        opacity 0.3s ease-in-out,
         width 0.3s ease-in-out;
 }
 
@@ -40,10 +41,6 @@
 .out .sign-out {
     opacity: 0;
     visibility: hidden;
-}
-
-.out .account-details {
-    display: none;
 }
 
 .expand svg {
@@ -71,10 +68,12 @@
     display: flex;
     height: 100%;
     width: 290px;
-    padding: 44px 20px;
-    border-right: 2px solid #ebe6e7;
+    padding: 44px 10px;
+    border-right: 1px solid #ebe6e7;
     position: relative;
-    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
+    transition:
+        width 0.3s ease-in-out,
+        padding 0.3s ease-in-out;
 }
 
 .sidebar {
@@ -119,7 +118,6 @@
 .menu {
     padding-top: 20px;
     width: 100%;
-    border-top: 2px solid #ebe6e7;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -127,7 +125,7 @@
 
 .option {
     display: flex;
-    padding: 10px 15px;
+    padding: 10px 12px;
     margin-bottom: 8px;
     transition: all 0.2s ease-in-out;
     border-radius: 6px;
@@ -184,18 +182,19 @@
 .account-section {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    border-top: 2px solid #ebe6e7;
+    border-top: 1px solid #ebe6e7;
     margin-top: 10px;
+    width: 100%;
 }
 
 .account {
     display: flex;
     margin-bottom: 20px;
-    width: 100%;
-    padding: 10px 15px;
+    width: fit-content;
+    padding: 10px 12px;
     height: 80px;
     align-items: center;
+    justify-content: center;
     margin-top: 20px;
     border-radius: 4px;
     transition: all 0.2s ease-in-out;
@@ -226,11 +225,11 @@
     height: 40px;
     visibility: visible;
     opacity: 1;
-    transition: all 0.3s ease-in-out;
     background-color: lightcoral;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: opacity 0.3s linear;
     font-weight: 600;
     border-radius: 10px;
     width: 100%;

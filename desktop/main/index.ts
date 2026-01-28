@@ -14,8 +14,8 @@ let pyProc: ChildProcessWithoutNullStreams | null = null;
 
 function createWindow() {
     win = new BrowserWindow({
-        width: 1200,
-        height: 800,
+        width: 1500,
+        height: 1000,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             scrollBounce: true,
