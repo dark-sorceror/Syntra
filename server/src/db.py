@@ -1,15 +1,26 @@
-import psycopg2
+import sqlite3
 
-def get_connection():
-    try: 
-        return psycopg2.connect(
-            database="postgres",
-            user="test",
-            password="password",
-            host="127.0.0.1",
-            port=1234,
+def create_connection():
+    conn = sqlite3.connect("C:/Users/Hao Yan/Documents/GitHub/Syntra/server/calendar.db")
+    
+    return conn
+
+def setup_database():
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            start_time TEXT NOT NULL,
+            end_time TEXT NOT NULL,
+            color TEXT NOT NULL
         )
-    except:
-        return False
+    ''')
+    
+    conn.commit()
+    conn.close()
 
-print(get_connection())
+setup_database()
