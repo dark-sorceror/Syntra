@@ -1,21 +1,37 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import { MonthView } from "./MonthView";
 import { WeekView } from "./WeekView";
 import { EventEditor } from "../Event Editor";
 
-import { CalendarProperties } from "@/types/calendar";
 import { getMonthName } from "@/utils/dateUtils";
 import { calendarEventCrud } from "@/hooks/calendarEventCrud";
+import { useEvents } from "@/hooks/useEvents";
 
 import "./index.css";
 import Switcher from "./Switcher";
 
-export function Calendar({ events, setEvents }: CalendarProperties) {
+export function Calendar() {
     const [currentView, setCurrentView] = useState<"day" | "week" | "month">(
         "month",
     );
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    const startWindow = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - 1,
+        1,
+    );
+    const endWindow = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 2,
+        0,
+    );
+
+    const { data: backendEvents = [], isLoading } = useEvents(
+        startWindow,
+        endWindow,
+    );
 
     const {
         position,
@@ -25,12 +41,31 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
         handleDeleteEvent,
         handleOpenEventEditor,
         handleCloseEventEditor,
-    } = calendarEventCrud({
-        events,
-        setEvents,
-    });
+    } = calendarEventCrud();
+
+    const events = useMemo(() => {
+        const mappedEvents = backendEvents.map((e: any) => ({
+            ...e,
+            start: new Date(e.start_time),
+            end: new Date(e.end_time),
+            color: "#87cefa",
+        }));
+
+        if (editingEvent && editingEvent.id === "") {
+            return [...mappedEvents, editingEvent];
+        }
+
+        return mappedEvents;
+    }, [backendEvents, editingEvent]);
 
     const renderView = () => {
+        if (isLoading)
+            return (
+                <div className="flex items-center justify-center h-full">
+                    Loading events...
+                </div>
+            );
+
         switch (currentView) {
             case "day":
                 return <></>;
@@ -40,7 +75,6 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
                         currentDate={currentDate}
                         setCurrentDate={setCurrentDate}
                         events={events}
-                        setEvents={setEvents}
                         onOpenEventEditor={handleOpenEventEditor}
                         editingEvent={editingEvent}
                         showEventEditor={showEventEditor}
@@ -52,7 +86,6 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
                         currentDate={currentDate}
                         setCurrentDate={setCurrentDate}
                         events={events}
-                        setEvents={setEvents}
                         onOpenEventEditor={handleOpenEventEditor}
                         editingEvent={editingEvent}
                         showEventEditor={showEventEditor}
@@ -69,15 +102,12 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
         switch (currentView) {
             case "day":
                 newDate.setDate(newDate.getDate() + 1);
-
                 break;
             case "week":
                 newDate.setDate(newDate.getDate() + 7);
-
                 break;
             case "month":
                 newDate.setMonth(newDate.getMonth() + 1);
-
                 break;
         }
 
@@ -90,15 +120,12 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
         switch (currentView) {
             case "day":
                 newDate.setDate(newDate.getDate() - 1);
-
                 break;
             case "week":
                 newDate.setDate(newDate.getDate() - 7);
-
                 break;
             case "month":
                 newDate.setMonth(newDate.getMonth() - 1);
-
                 break;
         }
 
@@ -110,7 +137,7 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
             <div className="cw-top">
                 <div className="month-year">
                     {getMonthName(currentDate.getMonth())}
-                    <span>{" "}{currentDate.getFullYear()}</span>
+                    <span> {currentDate.getFullYear()}</span>
                 </div>
                 <Switcher currentView={currentView} onChange={setCurrentView} />
                 <div className="bf-switcher">
@@ -125,14 +152,12 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
                             <path d="M10.6,12.71a1,1,0,0,1,0-1.42l4.59-4.58a1,1,0,0,0,0-1.42,1,1,0,0,0-1.41,0L9.19,9.88a3,3,0,0,0,0,4.24l4.59,4.59a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" />
                         </svg>
                     </div>
-
                     <div
                         onClick={() => setCurrentDate(new Date())}
                         className="today"
                     >
                         Today
                     </div>
-
                     <div onClick={goNextView} className="forward">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -145,7 +170,7 @@ export function Calendar({ events, setEvents }: CalendarProperties) {
                         </svg>
                     </div>
                 </div>
-                <div className="add">
+                <div className="add" onClick={() => handleOpenEventEditor()}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         id="Outline"

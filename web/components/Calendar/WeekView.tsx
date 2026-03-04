@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { CalendarEvent, CalendarViewProperties } from "../../types/calendar";
+import { useState, useEffect } from "react";
+import { CalendarEvent, CalendarViewProperties } from "../../types";
 import { generateCalendar } from "@/hooks/calendarGeneration";
+import { useUpdateEvent } from "@/hooks/useEvents";
 import {
     formatEventTime,
     getWeekdays,
@@ -16,44 +17,47 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
     currentDate,
     setCurrentDate,
     events,
-    setEvents,
     onOpenEventEditor,
     editingEvent,
     showEventEditor,
 }: CalendarViewProperties) => {
-    const { weekdayNames, isToday, handleCreateNewEvent, handleEditEvent } =
-        generateCalendar({
-            currentDate,
-            setCurrentDate,
-            events,
-            setEvents,
-            onOpenEventEditor,
-            editingEvent,
-            showEventEditor,
-        });
-
-    const [showNightHours, setShowNightHours] = useState(false);
-
+    const [localEvents, setLocalEvents] = useState(events);
     const [isDragging, setIsDragging] = useState(false);
+    const [showNightHours, setShowNightHours] = useState(false);
     const [dragStart, setDragStart] = useState<{
         day: Date;
         slot: number;
     } | null>(null);
     const [dragEnd, setDragEnd] = useState<{ day: Date; slot: number } | null>(
-        null
+        null,
     );
+
     const [resizingEvent, setResizingEvent] = useState<{
         event: CalendarEvent;
         edge: "top" | "bottom";
     } | null>(null);
 
     const [draggingEvent, setDraggingEvent] = useState<CalendarEvent | null>(
-        null
+        null,
     );
     const [dragOffset, setDragOffset] = useState<{
         day: number;
         slot: number;
     } | null>(null);
+
+    useEffect(() => setLocalEvents(events), [events]);
+
+    const updateEvent = useUpdateEvent();
+
+    const { weekdayNames, isToday, handleCreateNewEvent, handleEditEvent } =
+        generateCalendar({
+            currentDate,
+            setCurrentDate,
+            events: localEvents,
+            onOpenEventEditor,
+            editingEvent,
+            showEventEditor,
+        });
 
     const weekDays = getWeekdays(new Date(currentDate));
 
@@ -61,14 +65,15 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
     const visibleSlots = showNightHours
         ? allSlots
         : allSlots.filter((i) => i >= 28);
-
     const SLOT_HEIGHT = 20;
 
     const getEventLayouts = (day: Date): EventLayout[] => {
-        const dayEvents = events
+        const dayEvents = localEvents
             .filter((event) => {
                 if (event.isAllDay) return false;
+
                 const eventStart = new Date(event.start);
+
                 return (
                     eventStart.getDate() === day.getDate() &&
                     eventStart.getMonth() === day.getMonth() &&
@@ -101,15 +106,10 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
         if (event.isAllDay) return null;
 
         const firstVisibleSlot = showNightHours ? 0 : 28;
-
-        const startHour = eventStart.getHours();
-        const startMinutes = eventStart.getMinutes();
-        const startTotalSlots = startHour * 4 + startMinutes / 15;
-
-        const endHour = eventEnd.getHours();
-        const endMinutes = eventEnd.getMinutes();
-        const endTotalSlots = endHour * 4 + endMinutes / 15;
-
+        const startTotalSlots =
+            eventStart.getHours() * 4 + eventStart.getMinutes() / 15;
+        const endTotalSlots =
+            eventEnd.getHours() * 4 + eventEnd.getMinutes() / 15;
         const offsetSlots = startTotalSlots - firstVisibleSlot;
 
         const top = offsetSlots * SLOT_HEIGHT;
@@ -120,9 +120,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
     };
 
     const handleMouseDown = (day: Date, slot: number, e: React.MouseEvent) => {
-        if ((e.target as HTMLElement).closest(".event-block")) {
-            return;
-        }
+        if ((e.target as HTMLElement).closest(".event-block")) return;
 
         setIsDragging(true);
         setDragStart({ day, slot });
@@ -160,6 +158,22 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
             end.setHours(endHours, endMinutes, 0, 0);
         }
 
+        if (draggingEvent && dragOffset) {
+            updateEvent.mutate({
+                id: Number(draggingEvent.id),
+                start_time: draggingEvent.start.toISOString(),
+                end_time: draggingEvent.end.toISOString(),
+            });
+        }
+
+        if (resizingEvent) {
+            updateEvent.mutate({
+                id: Number(resizingEvent.event.id),
+                start_time: resizingEvent.event.start.toISOString(),
+                end_time: resizingEvent.event.end.toISOString(),
+            });
+        }
+
         setIsDragging(false);
         setDragStart(null);
         setDragEnd(null);
@@ -168,20 +182,16 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
         setDragOffset(null);
     };
 
-    const timeToSlot = (date: Date) => {
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-
-        return hours * 4 + Math.floor(minutes / 15);
-    };
+    const timeToSlot = (date: Date) =>
+        date.getHours() * 4 + Math.floor(date.getMinutes() / 15);
 
     const handleEventDragStart = (
         event: CalendarEvent,
         day: Date,
-        slot: number,
-        e: React.MouseEvent
+        e: React.MouseEvent,
     ) => {
         e.stopPropagation();
+
         const eventStart = new Date(event.start);
         const eventStartSlot = timeToSlot(eventStart);
 
@@ -189,14 +199,11 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
             (d) =>
                 d.getDate() === day.getDate() &&
                 d.getMonth() === day.getMonth() &&
-                d.getFullYear() === day.getFullYear()
+                d.getFullYear() === day.getFullYear(),
         );
 
         setDraggingEvent(event);
-        setDragOffset({
-            day: dayIndex,
-            slot: eventStartSlot,
-        });
+        setDragOffset({ day: dayIndex, slot: eventStartSlot });
     };
 
     const handleEventDrag = (day: Date, slot: number) => {
@@ -213,14 +220,12 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
 
         const newEnd = new Date(newStart.getTime() + durationMs);
 
-        const updatedEvent = {
-            ...draggingEvent,
-            start: newStart,
-            end: newEnd,
-        };
+        const updatedEvent = { ...draggingEvent, start: newStart, end: newEnd };
 
-        setEvents(
-            events.map((e) => (e.id === draggingEvent.id ? updatedEvent : e))
+        setLocalEvents(
+            localEvents.map((e) =>
+                e.id === draggingEvent.id ? updatedEvent : e,
+            ),
         );
         setDraggingEvent(updatedEvent);
     };
@@ -228,10 +233,9 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
     const handleResizeStart = (
         event: CalendarEvent,
         edge: "top" | "bottom",
-        e: React.MouseEvent
+        e: React.MouseEvent,
     ) => {
         e.stopPropagation();
-
         setResizingEvent({ event, edge });
     };
 
@@ -243,12 +247,12 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
         const eventDay = new Date(
             eventStart.getFullYear(),
             eventStart.getMonth(),
-            eventStart.getDate()
+            eventStart.getDate(),
         );
         const targetDay = new Date(
             day.getFullYear(),
             day.getMonth(),
-            day.getDate()
+            day.getDate(),
         );
 
         if (eventDay.getTime() !== targetDay.getTime()) return;
@@ -262,8 +266,10 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
             if (newTime < event.end) {
                 const updatedEvent = { ...event, start: newTime };
 
-                setEvents(
-                    events.map((e) => (e.id === event.id ? updatedEvent : e))
+                setLocalEvents(
+                    localEvents.map((e) =>
+                        e.id === event.id ? updatedEvent : e,
+                    ),
                 );
                 setResizingEvent({ event: updatedEvent, edge });
             }
@@ -271,22 +277,14 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
             if (newTime > event.start) {
                 const updatedEvent = { ...event, end: newTime };
 
-                setEvents(
-                    events.map((e) => (e.id === event.id ? updatedEvent : e))
+                setLocalEvents(
+                    localEvents.map((e) =>
+                        e.id === event.id ? updatedEvent : e,
+                    ),
                 );
                 setResizingEvent({ event: updatedEvent, edge });
             }
         }
-    };
-
-    const isCellInDragSelection = (day: Date, slot: number) => {
-        if (!isDragging || !dragStart || !dragEnd) return false;
-        if (day.getDate() !== dragStart.day.getDate()) return false;
-
-        const minSlot = Math.min(dragStart.slot, dragEnd.slot);
-        const maxSlot = Math.max(dragStart.slot, dragEnd.slot);
-
-        return slot >= minSlot && slot <= maxSlot;
     };
 
     return (
@@ -359,9 +357,6 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                     </div>
 
                                     {weekDays.map((day, dayIndex) => {
-                                        const isSelected =
-                                            isCellInDragSelection(day, slot);
-
                                         return (
                                             <div
                                                 key={dayIndex}
@@ -371,16 +366,16 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             day.getFullYear(),
                                                             day.getMonth(),
                                                             day.getDate(),
-                                                            hours
+                                                            hours,
                                                         ),
-                                                        e
+                                                        e,
                                                     )
                                                 }
                                                 onMouseDown={(e) =>
                                                     handleMouseDown(
                                                         day,
                                                         slot,
-                                                        e
+                                                        e,
                                                     )
                                                 }
                                                 onMouseEnter={() =>
@@ -390,7 +385,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                     weekview-grid-grid-grid
                                                     ${
                                                         isToday(
-                                                            day?.getDate() || 0
+                                                            day?.getDate() || 0,
                                                         )
                                                             ? "today"
                                                             : ""
@@ -413,7 +408,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                         {eventLayouts.map(({ event }) => {
                                             const position = getEventPosition(
                                                 event,
-                                                day
+                                                day,
                                             );
 
                                             if (!position) return null;
@@ -436,22 +431,22 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                     onDoubleClick={(e) =>
                                                         handleEditEvent(
                                                             event,
-                                                            e
+                                                            e,
                                                         )
                                                     }
                                                     onMouseDown={(e) => {
                                                         const target =
                                                             e.target as HTMLElement;
+
                                                         if (
                                                             !target.classList.contains(
-                                                                "resize-handle"
+                                                                "resize-handle",
                                                             )
                                                         ) {
                                                             handleEventDragStart(
                                                                 event,
                                                                 day,
-                                                                position.startTotalSlots,
-                                                                e
+                                                                e,
                                                             );
                                                         }
                                                     }}
@@ -470,7 +465,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             handleResizeStart(
                                                                 event,
                                                                 "top",
-                                                                e
+                                                                e,
                                                             )
                                                         }
                                                     ></div>
@@ -481,7 +476,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                     {position.height >= 40 && (
                                                         <div className="event-block-desc">
                                                             {formatEventTime(
-                                                                event.start
+                                                                event.start,
                                                             )}
                                                         </div>
                                                     )}
@@ -491,7 +486,7 @@ export const WeekView: React.FC<CalendarViewProperties> = ({
                                                             handleResizeStart(
                                                                 event,
                                                                 "bottom",
-                                                                e
+                                                                e,
                                                             )
                                                         }
                                                     ></div>

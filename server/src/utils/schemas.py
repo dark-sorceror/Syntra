@@ -1,6 +1,7 @@
-from pydantic import BaseModel
 from datetime import datetime
-from models import EventCategory
+from pydantic import BaseModel
+
+from src.models.db_models import EventCategory
 
 class EventCreate(BaseModel):
     title: str

@@ -1,5 +1,5 @@
 import { formatEventTime, monthNames } from "@/utils/dateUtils";
-import { CalendarEvent } from "../../types/calendar";
+import { CalendarEvent } from "../../types";
 
 import "./index.css";
 

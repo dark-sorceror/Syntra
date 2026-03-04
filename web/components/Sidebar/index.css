@@ -190,11 +190,11 @@
 .account {
     display: flex;
     margin-bottom: 20px;
-    width: fit-content;
+    width: 100%;
     padding: 10px 12px;
     height: 80px;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     margin-top: 20px;
     border-radius: 4px;
     transition: all 0.2s ease-in-out;

@@ -1,62 +1,52 @@
 import { useState } from "react";
 
-import { CalendarEvent, EventProperties, Position } from "@/types/calendar";
+import {
+    useCreateEvent,
+    useUpdateEvent,
+    useDeleteEvent,
+} from "@/hooks/useEvents";
 
-export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
+import { CalendarEvent, Position } from "@/types";
+
+export const calendarEventCrud = () => {
     const [showEventEditor, setShowEventEditor] = useState(false);
     const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(
-        null
+        null,
     );
     const [position, setPosition] = useState<Position>({
         x: 0,
         y: 0,
     });
 
-    const handleCreateEvent = (newEvent: Omit<CalendarEvent, "id">) => {
-        const event: CalendarEvent = {
-            ...newEvent,
-            id: "",
-        };
+    const createEvent = useCreateEvent();
+    const updateEvent = useUpdateEvent();
+    const deleteEvent = useDeleteEvent();
 
-        setEvents([event, ...events]);
-        setShowEventEditor(false);
-        setEditingEvent(null);
-    };
-
-    const handleSaveEvent = (
-        event: CalendarEvent | Omit<CalendarEvent, "id">
-    ) => {
-        const cleanEvents = events.filter((e) => e.id);
-
-        if ("id" in event && event.id !== "" && event.id) {
-            const updatedList = cleanEvents.map((e) =>
-                e.id === event.id ? (event as CalendarEvent) : e
-            );
-
-            setEvents(updatedList);
+    const handleSaveEvent = (event: any) => {
+        if (event.id && event.id !== "") {
+            updateEvent.mutate({
+                id: Number(event.id),
+                title: event.title,
+                category: event.category || "work",
+                start_time: new Date(event.start).toISOString(),
+                end_time: new Date(event.end).toISOString(),
+            });
         } else {
-            const newRealEvent: CalendarEvent = {
-                ...event,
-                id: Date.now().toString(),
-            };
-
-            setEvents([...cleanEvents, newRealEvent]);
+            createEvent.mutate({
+                title: event.title,
+                category: event.category || "work",
+                start_time: new Date(event.start).toISOString(),
+                end_time: new Date(event.end).toISOString(),
+            });
         }
 
         setShowEventEditor(false);
         setEditingEvent(null);
     };
 
-    const handleUpdateEvent = (updatedEvent: CalendarEvent) => {
-        setEvents(
-            events.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
-        );
-        setShowEventEditor(false);
-        setEditingEvent(null);
-    };
+    const handleDeleteEvent = (eventId: string | number) => {
+        deleteEvent.mutate(Number(eventId));
 
-    const handleDeleteEvent = (eventId: string) => {
-        setEvents(events.filter((e) => e.id !== eventId));
         setShowEventEditor(false);
         setEditingEvent(null);
     };
@@ -65,33 +55,28 @@ export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
         position?: Position,
         event?: CalendarEvent,
         start?: Date,
-        end?: Date
+        end?: Date,
     ) => {
         setPosition(position || { x: 0, y: 0 });
 
         if (event) {
             setEditingEvent(event);
         } else if (start && end) {
-            const placeholder: CalendarEvent = {
+            const placeholder = {
                 id: "",
                 title: "New Event",
                 start,
                 end,
                 color: "#87cefa",
-                category: "Work",
+                category: "work",
             };
-
             setEditingEvent(placeholder);
-            setEvents((prev) => [...prev, placeholder]);
         }
 
         setShowEventEditor(true);
     };
 
     const handleCloseEventEditor = () => {
-        const filtered = events.filter((e) => e.id);
-
-        setEvents(filtered);
         setShowEventEditor(false);
         setEditingEvent(null);
     };
@@ -100,9 +85,7 @@ export const calendarEventCrud = ({ events, setEvents }: EventProperties) => {
         position,
         showEventEditor,
         editingEvent,
-        handleCreateEvent,
         handleSaveEvent,
-        handleUpdateEvent,
         handleDeleteEvent,
         handleOpenEventEditor,
         handleCloseEventEditor,

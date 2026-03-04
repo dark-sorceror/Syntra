@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarEvent } from "../../types/calendar";
+import { CalendarEvent } from "../../types";
 import { getMonthName } from "@/utils/dateUtils";
 
 import "./index.css";

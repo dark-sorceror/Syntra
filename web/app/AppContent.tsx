@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Calendar } from "@/components/Calendar";
-import { CalendarEvent } from "@/types/calendar";
+import { CalendarEvent } from "@/types";
 import { Tasks } from "./tasks";
 import { Dashboard } from "./dashboard";
 

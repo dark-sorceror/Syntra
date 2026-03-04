@@ -4,7 +4,7 @@ import {
     CalendarViewProperties,
     CalendarEvent,
     Position,
-} from "@/types/calendar";
+} from "@/types";
 
 import {
     getDaysInMonth,

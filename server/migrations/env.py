@@ -5,15 +5,15 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.utils.db import Base
 import src.models.db_models
+from src.utils.db import Base
 
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "").replace("+asyncpg", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

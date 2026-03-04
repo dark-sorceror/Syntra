@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { EventEditorProperties, CalendarEvent } from "@/types/calendar";
+import { EventEditorProperties, CalendarEvent } from "@/types";
 
 import "./index.css";
 

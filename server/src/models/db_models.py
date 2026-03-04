@@ -1,8 +1,9 @@
+import enum
+from datetime import datetime
 from sqlalchemy import String, Integer, Float, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
+
 from src.utils.db import Base
-import enum
 
 class EventCategory(str, enum.Enum):
     work = "work"

@@ -1,19 +1,30 @@
-import { useState } from "react";
-
-import { CalendarViewProperties } from "@/types/calendar";
+import { useState, useEffect } from "react";
+import { CalendarViewProperties, CalendarEvent } from "@/types";
 import { generateCalendar } from "@/hooks/calendarGeneration";
-
-import { CalendarEvent } from "@/types/calendar";
+import { useUpdateEvent } from "@/hooks/useEvents"; // <-- Import the mutation
 
 export const MonthView: React.FC<CalendarViewProperties> = ({
     currentDate,
     setCurrentDate,
     events,
-    setEvents,
     onOpenEventEditor,
     editingEvent,
     showEventEditor,
 }: CalendarViewProperties) => {
+    const [localEvents, setLocalEvents] = useState(events);
+    const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(
+        null,
+    );
+    const [dragStartDay, setDragStartDay] = useState<number | null>(null);
+    const [resizingEvent, setResizingEvent] = useState<{
+        event: CalendarEvent;
+        edge: "left" | "right";
+    } | null>(null);
+
+    useEffect(() => setLocalEvents(events), [events]);
+
+    const updateEvent = useUpdateEvent();
+
     const {
         weekdayNames,
         isToday,
@@ -25,26 +36,16 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
     } = generateCalendar({
         currentDate,
         setCurrentDate,
-        events,
-        setEvents,
+        events: localEvents,
         onOpenEventEditor,
         editingEvent,
         showEventEditor,
     });
 
-    const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(
-        null
-    );
-    const [dragStartDay, setDragStartDay] = useState<number | null>(null);
-    const [resizingEvent, setResizingEvent] = useState<{
-        event: CalendarEvent;
-        edge: "left" | "right";
-    } | null>(null);
-
     const handleEventDragStart = (
         event: CalendarEvent,
         day: number,
-        e: React.DragEvent
+        e: React.DragEvent,
     ) => {
         e.stopPropagation();
         setDraggedEvent(event);
@@ -73,9 +74,18 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                 end: newEnd,
             };
 
-            setEvents(
-                events.map((e) => (e.id === draggedEvent.id ? updatedEvent : e))
+            setLocalEvents(
+                localEvents.map((e) =>
+                    e.id === draggedEvent.id ? updatedEvent : e,
+                ),
             );
+
+            updateEvent.mutate({
+                id: Number(draggedEvent.id),
+                start_time: newStart.toISOString(),
+                end_time: newEnd.toISOString(),
+            });
+
             setDraggedEvent(null);
             setDragStartDay(null);
         }
@@ -84,11 +94,10 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
     const handleResizeStart = (
         event: CalendarEvent,
         edge: "left" | "right",
-        e: React.MouseEvent
+        e: React.MouseEvent,
     ) => {
         e.stopPropagation();
         e.preventDefault();
-
         setResizingEvent({ event, edge });
     };
 
@@ -101,7 +110,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
             const targetDate = new Date(
                 currentDate.getFullYear(),
                 currentDate.getMonth(),
-                day
+                day,
             );
 
             if (edge === "left") {
@@ -112,15 +121,15 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                         eventStart.getHours(),
                         eventStart.getMinutes(),
                         0,
-                        0
+                        0,
                     );
 
                     const updatedEvent = { ...event, start: newStart };
 
-                    setEvents(
-                        events.map((e) =>
-                            e.id === event.id ? updatedEvent : e
-                        )
+                    setLocalEvents(
+                        localEvents.map((e) =>
+                            e.id === event.id ? updatedEvent : e,
+                        ),
                     );
                     setResizingEvent({ event: updatedEvent, edge });
                 }
@@ -132,15 +141,15 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                         eventEnd.getHours(),
                         eventEnd.getMinutes(),
                         0,
-                        0
+                        0,
                     );
 
                     const updatedEvent = { ...event, end: newEnd };
 
-                    setEvents(
-                        events.map((e) =>
-                            e.id === event.id ? updatedEvent : e
-                        )
+                    setLocalEvents(
+                        localEvents.map((e) =>
+                            e.id === event.id ? updatedEvent : e,
+                        ),
                     );
                     setResizingEvent({ event: updatedEvent, edge });
                 }
@@ -149,6 +158,14 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
     };
 
     const handleMouseUp = () => {
+        if (resizingEvent) {
+            updateEvent.mutate({
+                id: Number(resizingEvent.event.id),
+                start_time: resizingEvent.event.start.toISOString(),
+                end_time: resizingEvent.event.end.toISOString(),
+            });
+        }
+
         setResizingEvent(null);
     };
 
@@ -208,7 +225,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
 
                                 const isStart = isEventStart(
                                     event,
-                                    day?.getDate() || 0
+                                    day?.getDate() || 0,
                                 );
 
                                 return (
@@ -226,7 +243,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                                       handleEventDragStart(
                                                           event,
                                                           day?.getDate() || 0,
-                                                          e
+                                                          e,
                                                       )
                                                 : undefined
                                         }
@@ -244,7 +261,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                                     handleResizeStart(
                                                         event,
                                                         "left",
-                                                        e
+                                                        e,
                                                     )
                                                 }
                                             ></div>
@@ -257,7 +274,7 @@ export const MonthView: React.FC<CalendarViewProperties> = ({
                                                     handleResizeStart(
                                                         event,
                                                         "right",
-                                                        e
+                                                        e,
                                                     )
                                                 }
                                             ></div>

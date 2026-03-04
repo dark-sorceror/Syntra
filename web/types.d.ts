@@ -5,33 +5,24 @@ export interface Position {
     y: number;
 }
 
-export interface CalendarProperties {
-    events: CalendarEvent[];
-    setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
-}
+export type EventCategory = "work" | "personal" | "health" | "social" | "focus";
 
 export interface CalendarViewProperties {
     currentDate: Date;
     setCurrentDate: (date: Date) => void;
     events: CalendarEvent[];
-    setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
     onOpenEventEditor: (
         position?: Position,
         event?: CalendarEvent,
         start?: Date,
-        end?: Date
+        end?: Date,
     ) => void;
     editingEvent: CalendarEvent | null;
     showEventEditor: boolean;
 }
 
-export interface EventProperties {
-    events: CalendarEvent[];
-    setEvents: Dispatch<SetStateAction<CalendarEvent[]>>;
-}
-
 export interface CalendarEvent {
-    id: string;
+    id: number | string;
     title: string;
     description?: string;
     category?: string;
@@ -39,13 +30,4 @@ export interface CalendarEvent {
     isAllDay?: boolean;
     start: Date;
     end: Date;
-}
-
-export interface EventEditorProperties {
-    x: number;
-    y: number;
-    event: CalendarEvent | null;
-    onSave: (event: CalendarEvent | Omit<CalendarEvent, "id">) => void;
-    onDelete?: (eventId: string) => void;
-    onClose: () => void;
 }
