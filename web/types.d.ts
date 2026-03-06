@@ -31,3 +31,12 @@ export interface CalendarEvent {
     start: Date;
     end: Date;
 }
+
+export interface EventEditorProperties {
+    x: number;
+    y: number;
+    event: CalendarEvent | null;
+    onSave: (event: CalendarEvent | Omit<CalendarEvent, "id">) => void;
+    onDelete?: (eventId: number | string) => void;
+    onClose: () => void;
+}

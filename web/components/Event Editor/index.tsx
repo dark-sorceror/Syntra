@@ -24,7 +24,6 @@ export const EventEditor: React.FC<EventEditorProperties> = ({
     const [startTime, setStartTime] = useState("");
     const [endDate, setEndDate] = useState("");
     const [endTime, setEndTime] = useState("");
-    const [category, setCategory] = useState(event?.category || "Work");
     const [color, setColor] = useState(event?.color || "#87cefa");
     const [description, setDescription] = useState(event?.description || "");
     const [isAllDay, setIsAllDay] = useState(event?.isAllDay || false);

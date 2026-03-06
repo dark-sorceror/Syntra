@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import events
+from routes import events
 
 app = FastAPI(title = "Syntra Backend")
 
